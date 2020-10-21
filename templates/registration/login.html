@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="column is-full-mobile">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {{ form.source.errors }}
+        {{ form.source }}
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_username">{{ form.username.label_tag }}</label>
+                    {{ form.username.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.username }}
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_username">{{ form.password.label_tag }}</label>
+                    {{ form.password.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.password }}
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="success button float-center">Login</button>
+    </form>
+</div>
+{% endblock %}
