@@ -17,12 +17,13 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path("", include("dashboard.urls")),
-    path("admin/", admin.site.urls),
-    path("accounts/", include("employee_auth.urls")),
-    path("accounts/", include("django.contrib.auth.urls")),
+    path('', include('dashboard.urls')),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('employee_auth.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('carbina/', include('carbina.urls'))
 ]
 
-admin.site.site_header = "Arena Tree Specialists Admin"
-admin.site.index_title = "Home // Arena Tree Specialists Administration"
-admin.site.site_title = "Arena Tree Specialists Administration"
+admin.site.site_header = 'Arena Tree Specialists Admin'
+admin.site.index_title = 'Home // Arena Tree Specialists Administration'
+admin.site.site_title = 'Arena Tree Specialists Administration'

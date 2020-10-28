@@ -59,12 +59,10 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        requested_pk = self.kwargs.get("pk")
-        context["profile"] = User.objects.get(pk=int(requested_pk))
+        context['profile'] = self.get_object()
         return context
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
         context = super().get_context_data(**kwargs)
         return render(request, self.template_name, context)
 
@@ -95,8 +93,8 @@ class UserEditView(UpdateView):
     '''
 
     def get_success_url(self):
-        pk = self.kwargs.get("pk")
-        if self.kwargs.get("pk"):
+        pk = self.kwargs.get("pk", )
+        if self.kwargs.get("pk", ):
             return reverse_lazy("user-detail", args=[pk])
         else:
             return reverse_lazy("user-list", args=[pk])
@@ -178,11 +176,11 @@ class DepartmentDetailView(DetailView):
     template_name = _dtf + "detail.html"
 
     def get_object(self, queryset=Department.objects):
-        return queryset.get(pk=self.kwargs.get("pk"))
+        return queryset.get(pk=self.kwargs.get("pk", ))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pk = int(self.kwargs.get("pk"))
+        pk = int(self.kwargs.get("pk", ))
         context["members"] = User.objects.filter(department=pk)
         return context
 

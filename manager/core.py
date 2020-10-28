@@ -5,7 +5,7 @@ def paginate_list(self, list_name):
     """
         This function returns a paginated object of the list passed in. The list should generally be a queryset.
     """
-    page_ = self.request.GET.get("page")
+    page_ = self.request.GET.get("page", )
     paginator = Paginator(list_name, self.paginate_by)
 
     try:
