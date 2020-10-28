@@ -1,19 +1,52 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import View, UpdateView, DetailView, DeleteView, ListView
-from .forms import AddressForm
-from .models import Address
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.forms import formset_factory
+from .forms import AddressForm, ClientForm
+from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER
 
 _address_template_path = APP_TEMPLATE_FOLDER + "address/"
+_client_template_path = APP_TEMPLATE_FOLDER + "client/"
+ADDR_PAGINATE_BY = 15
+CLIENT_PAGINATE_BY = 15
+
+# purpose:   provide pagination with proper error handling for any model's
+#            list view. The paginated data and number of data in the page
+#            is returned.
+# inputs:    request     ->  the view request
+#            model       ->  the model that will be listed from an all queryset
+#   default_paginate_by  ->  integer representing the number of items to be
+#                            displayed if the user makes no choice
+# returns:   - the paginated data and the count of items paginated
+def select_paginate(request, queryset, default_paginate_by):
+    paginate_by = request.GET.get('paginate_by', )
+
+    if not paginate_by and default_paginate_by:
+        paginate_by = default_paginate_by
+
+    paginator = Paginator(queryset, paginate_by)
+    page = request.GET.get('page', )
+
+    try:
+        paginated = paginator.get_page(page)
+    except PageNotAnInteger:
+        paginated = paginator.get_page(1)
+    except EmptyPage:
+        paginated = paginator.page(paginator.num_pages)
+
+    return {'DataPaginated': paginated, 'paginate_by': paginate_by}
 
 
 # purpose:   provide an authenticated user with a form to create an Address
 #            object. The object's created_by field is set to the user after
 #            the form is validated.
+# returns:   - detail page of the created address if the form is valid
+#            - if the form has errors, the page will be rendered again with errors
 @method_decorator(login_required, name="dispatch")
 class AddressCreateView(View):
     model = Address
@@ -45,13 +78,34 @@ class AddressEditView(UpdateView):
 class AddressListView(ListView):
     model = Address
     template_name = _address_template_path + "list.html"
-    # paginate by
+    context_object_name = "addresses"
+    paginate_by = ADDR_PAGINATE_BY
+
+    def get_context_data(self, **kwargs):
+        context = super(AddressListView, self).get_context_data(**kwargs)
+        context[self.context_object_name] = Address.objects.all()
+        return context
 
 
 @method_decorator(login_required, name="dispatch")
 class AddressDetailView(DetailView):
     model = Address
-    template_name = _address_template_path + "detail.html"
+    template_name = _address_template_path + 'detail.html'
+    context_object_name = 'address'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+
+    def get_object(self, queryset=model):
+        return get_object_or_404(self.model, pk=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        self.object = self.get_object()
+        context = super(AddressDetailView, self).get_context_data(**kwargs)
+        _address_str = str(self.object.street + ",+" + self.object.city + "+" + self.object.state ).replace(' ', '+')
+        context['address_map_url'] = _address_str
+        context['street_label'] = str(self.object.street).replace(" ", "+")
+        return context
 
 
 @method_decorator(login_required, name="dispatch")
@@ -59,3 +113,57 @@ class AddressDeleteView(DeleteView):
     model = Address
     template_name = _address_template_path + "delete.html"
     success_url = reverse_lazy("address-list")
+
+
+@method_decorator(login_required, name="dispatch")
+class ClientCreateView(View):
+    model = Client
+    form_class = ClientForm
+    template_name = _client_template_path + "create.html"
+
+    def get(self, request, *args, **kwargs):
+        context = {"form": self.form_class}
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            client_object = form.save(commit=False)
+            client_object.created_by = request.user
+            client_object.save()
+            return HttpResponseRedirect(reverse_lazy("client-detail", args=[client_object.pk]))
+        return render(request, self.template_name, {"form": form})
+
+
+@method_decorator(login_required, name="dispatch")
+class ClientEditView(UpdateView):
+    model = Client
+    form_class = AddressForm
+    template_name = _client_template_path + "edit.html"
+
+
+@method_decorator(login_required, name="dispatch")
+class ClientListView(ListView):
+    model = Client
+    template_name = _client_template_path + "list.html"
+    context_object_name = 'clients'
+    paginate_by = CLIENT_PAGINATE_BY
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientListView, self).get_context_data(**kwargs)
+        context[self.context_object_name] = Address.objects.all()
+        return context
+
+
+@method_decorator(login_required, name="dispatch")
+class ClientDetailView(DetailView):
+    model = Client
+    template_name = _client_template_path + 'detail.html'
+    context_object_name = 'client'
+
+
+@method_decorator(login_required, name="dispatch")
+class ClientDeleteView(DeleteView):
+    model = Client
+    template_name = _client_template_path + "delete.html"
+    success_url = reverse_lazy("client-list")

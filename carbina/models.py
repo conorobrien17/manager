@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from phone_field import PhoneField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
@@ -6,7 +7,7 @@ from django.conf import settings
 
 class Service(models.Model):
     title = models.CharField(blank=False, max_length=128, help_text="The name of the service")
-    description = models.TextField(blank=False, help_text="A description of this service and what is typically done.")
+    description = models.TextField(blank=True, help_text="A description of this service and what is typically done.")
     quantity = models.PositiveIntegerField(null=True, default=1, help_text="The quantity of this service item")
     price = models.FloatField(null=True, validators=[MinValueValidator(0)], help_text="The quoted price of the service")
 
@@ -57,6 +58,9 @@ class Address(models.Model):
     def __str__(self):
         return self.street + ", " + self.city + " " + self.state
 
+    def get_absolute_url(self):
+        return reverse("address-detail", args=[str(self.pk)])
+
 
 class Status(models.Model):
     title = models.CharField(blank=False, max_length=32, help_text="The title of a job/quote status")
@@ -73,7 +77,7 @@ class Client(models.Model):
     home_phone = PhoneField(blank=True)
     cell_phone = PhoneField(blank=True)
     email_address = models.EmailField(blank=True, null=False, max_length=256, help_text="The client's email address")
-    properties = models.ForeignKey(null=True, to="Address", related_name="addresses", on_delete=models.SET_NULL)
+    properties = models.ForeignKey(null=True, to="Address", related_name="client_addresses", on_delete=models.SET_NULL)
     job_list = models.ForeignKey(null=True, to="Job", related_name="jobs", on_delete=models.SET_NULL)
     quote_list = models.ForeignKey(null=True, to="Quote", related_name="quotes", on_delete=models.SET_NULL)
 
