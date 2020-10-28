@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Create Address{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="column is-full-mobile">
+    <h2>Create Address</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {{ form.source.errors }}
+        {{ form.source }}
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_street">{{ form.street.label_tag }}</label>
+                    {{ form.street.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.street }}
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_city">{{ form.city.label_tag }}</label>
+                    {{ form.city.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.city }}
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_state">{{ form.state.label_tag }}</label>
+                    {{ form.state.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.state }}
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_zip_code">{{ form.zip_code.label_tag }}</label>
+                    {{ form.zip_code.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.zip_code }}
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="success button float-center">Create</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/places.js@1.19.0"></script>
+<script>
+(function() {
+  var placesAutocomplete = places({
+    appId: 'pl8KLC1A2M0L',
+    apiKey: '7fa54f36db83ceb7d5f0e469f9bd9d4f',
+    container: document.querySelector('#id_street'),
+    templates: {
+      value: function(suggestion) {
+        return suggestion.name;
+      }
+    }
+  }).configure({
+    type: 'address'
+  });
+  placesAutocomplete.on('change', function resultSelected(e) {
+    document.querySelector('#id_city').value = e.suggestion.city || '';
+    document.querySelector('#id_state').value = e.suggestion.state || '';
+    document.querySelector('#id_zip_code').value = e.suggestion.postcode || '';
+  });
+})();
+</script>
+{% endblock %}

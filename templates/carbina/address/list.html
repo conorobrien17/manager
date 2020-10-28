@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Address List{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="column is-full-mobile">
+    <h2>Address List</h2>
+    <table class="hover table-scroll">
+        <thead>
+            <tr>
+                <th width="300">Street</th>
+                <th width="300">City</th>
+                <th width="300">Zip Code</th>
+                <th width="300">State</th>
+                <th width="300">Client</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for address in addresses %}
+            <tr>
+                <td><a href="{{ address.get_absolute_url }}">Street {{ address.street }}</a></td>
+                <td>{{ address.city }}</td>
+                <td>{{ address.zip_code }}</td>
+                <td>{{ address.state }}</td>
+                <td>{{ address.client_addresses }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
