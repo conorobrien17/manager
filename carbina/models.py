@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from phone_field import PhoneField
+from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 
@@ -49,6 +49,7 @@ class Address(models.Model):
     city = models.CharField(blank=False, max_length=128, help_text="The town or city where the property is located")
     state = models.CharField(blank=False, max_length=64, help_text="The state where the property is located")
     zip_code = models.PositiveIntegerField(null=False, validators=[MaxValueValidator(99999)])
+    owner = models.ForeignKey(null=True, to="Client", related_name="addresses", on_delete=models.SET_NULL)
     created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="created_addresses", on_delete=models.SET_NULL)
     created_timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -74,12 +75,9 @@ class Status(models.Model):
 class Client(models.Model):
     first_name = models.CharField(blank=False, max_length=64, help_text="The client\'s first name")
     last_name = models.CharField(blank=False, max_length=64, help_text="The client\'s last name")
-    home_phone = PhoneField(blank=True)
-    cell_phone = PhoneField(blank=True)
+    home_phone = PhoneNumberField(blank=True)
+    cell_phone = PhoneNumberField(blank=True)
     email_address = models.EmailField(blank=True, null=False, max_length=256, help_text="The client's email address")
-    properties = models.ForeignKey(null=True, to="Address", related_name="client_addresses", on_delete=models.SET_NULL)
-    job_list = models.ForeignKey(null=True, to="Job", related_name="jobs", on_delete=models.SET_NULL)
-    quote_list = models.ForeignKey(null=True, to="Quote", related_name="quotes", on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["last_name", "first_name"]
@@ -89,7 +87,10 @@ class Client(models.Model):
         verbose_name_plural = "Clients"
 
     def __str__(self):
-        return self.first_name + " " + self.last_name + " (" + self.properties.city + ")"
+        return self.first_name + " " + self.last_name
+
+    def get_absolute_url(self):
+        return reverse("client-detail", args=[str(self.pk)])
 
 
 class Quote(models.Model):
@@ -101,6 +102,7 @@ class Quote(models.Model):
                                        on_delete=models.SET_NULL)
     office_notes = models.TextField(help_text="Office and administrative notes about the quote")
     quote_notes = models.TextField(help_text="Notes for the quote and potential job itself")
+    client = models.ForeignKey(null=True, to="Client", related_name="quotes", on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["-scheduled_time", "title"]
@@ -111,6 +113,9 @@ class Quote(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("quote-detail", args=[str(self.pk)])
 
 
 class Job(models.Model):
@@ -124,9 +129,13 @@ class Job(models.Model):
     images = models.ForeignKey(null=True, to="JobPicture", related_name="images", on_delete=models.SET_NULL)
     created_timestamp = models.DateTimeField(auto_now_add=True)
     storm_job = models.BooleanField(default=False, help_text="Is this a storm damage job?")
+    client = models.ForeignKey(null=True, to="Client", related_name="jobs", on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["-scheduled_time"]
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("job-detail", args=[str(self.pk)])

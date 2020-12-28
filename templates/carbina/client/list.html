@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Client List{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="m-6">
+    <h2 class="h2">Client List</h2>
+    <table class="hover table-scroll">
+        <thead>
+            <tr>
+                <th width="300">First Name</th>
+                <th width="300">Last Name</th>
+                <th width="300">Cell Phone</th>
+                <th width="300">Email</th>
+                <th width="300">Town</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td><a href="{{ client.get_absolute_url }}">{{ client.first_name }}</a></td>
+                <td>{{ client.last_name }}</td>
+                <td>{{ client.cell_phone }}</td>
+                <td>{{ client.email_address }}</td>
+                <td class="text-center">{{ client.addresses.first.city }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

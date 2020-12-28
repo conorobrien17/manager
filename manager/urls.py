@@ -21,7 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('employee_auth.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('carbina/', include('carbina.urls'))
+    path('carbina/', include('carbina.urls')),
+    path('django-rq/', include('django_rq.urls'))
 ]
 
 admin.site.site_header = 'Arena Tree Specialists Admin'

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Address Info: {{ address.street }}{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="m-6">
+    {{ client.email_address }}<br>
+    {{ client.home_phone }}<br>
+    {{ client.cell_phone }}<br>
+    {% for address in client.addresses.all %}
+        {{ address.street }}<br>
+        {{ address.city }}
+    {% endfor %}
+
+    <div class="Box Box--spacious f4">
+        <div class="Box-header">
+            <h3 class="Box-title">{{ client.first_name }} {{ client.last_name }}</h3>
+        </div>
+        <ul>
+            <li class="Box-row">
+            Email: {{ client.email_address }}
+            </li>
+            <li class="Box-row">
+                https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
+            </li>
+        </ul>
+        <div class="Box-footer">
+        Box footer
+        </div>
+    </div>
+</div>
+{% endblock %}

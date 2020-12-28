@@ -3,10 +3,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import View, UpdateView, DetailView, DeleteView, ListView
+from django.views.generic import View, UpdateView, DetailView, DeleteView, ListView, CreateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import formset_factory
-from .forms import AddressForm, ClientForm
+from django.db import transaction
+from .forms import AddressForm, ClientForm, AddressFormSet
 from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER
 
@@ -14,6 +15,7 @@ _address_template_path = APP_TEMPLATE_FOLDER + "address/"
 _client_template_path = APP_TEMPLATE_FOLDER + "client/"
 ADDR_PAGINATE_BY = 15
 CLIENT_PAGINATE_BY = 15
+
 
 # purpose:   provide pagination with proper error handling for any model's
 #            list view. The paginated data and number of data in the page
@@ -116,18 +118,36 @@ class AddressDeleteView(DeleteView):
 
 
 @method_decorator(login_required, name="dispatch")
-class ClientCreateView(View):
+class ClientCreateView(CreateView):
     model = Client
     form_class = ClientForm
     template_name = _client_template_path + "create.html"
 
-    def get(self, request, *args, **kwargs):
-        context = {"form": self.form_class}
-        return render(request, self.template_name, context)
+    def get_context_data(self, **kwargs):
+        context = super(ClientCreateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            context['addresses'] = AddressFormSet(self.request.POST)
+        else:
+            context['addresses'] = AddressFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        addresses = context['addresses']
+        with transaction.atomic():
+            self.object = form.save(commit=False)
+            self.object.created_by = self.request.user
+            self.object = form.save()
+            if addresses.is_valid():
+                for address in addresses:
+                    address.instance = self.object
+                    address.save()
+        return super(ClientCreateView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        if form.is_valid():
+        address_formset = AddressFormSet(request.POST)
+        if form.is_valid() and address_formset.is_valid():
             client_object = form.save(commit=False)
             client_object.created_by = request.user
             client_object.save()
@@ -148,11 +168,6 @@ class ClientListView(ListView):
     template_name = _client_template_path + "list.html"
     context_object_name = 'clients'
     paginate_by = CLIENT_PAGINATE_BY
-
-    def get_context_data(self, **kwargs):
-        context = super(ClientListView, self).get_context_data(**kwargs)
-        context[self.context_object_name] = Address.objects.all()
-        return context
 
 
 @method_decorator(login_required, name="dispatch")

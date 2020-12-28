@@ -1,6 +1,8 @@
 from django import forms
 from django.core.validators import validate_email
+from django.forms import inlineformset_factory
 from django.forms.formsets import BaseFormSet
+from phonenumber_field.modelfields import PhoneNumberField
 from .models import *
 import re as regex
 
@@ -66,51 +68,10 @@ class AddressForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class AddressFormSet(BaseFormSet):
-    def clean(self):
-        if any(self.errors):
-            return
-
-        streets = []
-        cities = []
-        states = []
-        zip_codes = []
-        duplicates = False
-
-        for form in self.forms:
-            if form.cleaned_data:
-                street = form.cleaned_data['street']
-                city = form.cleaned_data['city']
-                state = form.cleaned_data['state']
-                zip_code = form.cleaned_data['zip_code']
-
-                if street and street in streets:
-                    raise forms.ValidationError(
-                        'Addresses must have unique street addresses.',
-                        code='duplicate_addresses'
-                    )
-
-                if streets and cities and not zip_codes:
-                    raise forms.ValidationError(
-                        'All addresses require a zip code',
-                        code='missing_zip_code'
-                    )
-                elif zip_codes and streets and not cities:
-                    raise forms.ValidationError(
-                        'All addresses require a city',
-                        code='missing_city'
-                    )
-                elif zip_codes and cities and not streets:
-                    raise forms.ValidationError(
-                        'All addresses require a street address',
-                        code='missing_street'
-                    )
-
-
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
-        fields = ('first_name', 'last_name', 'home_phone', 'cell_phone', 'email_address', 'properties')
+        fields = ('first_name', 'last_name', 'home_phone', 'cell_phone', 'email_address')
 
     def __init__(self, *args, **kwargs):
         super(ClientForm, self).__init__(*args, **kwargs)
@@ -130,11 +91,11 @@ class ClientForm(forms.ModelForm):
             self._errors['first_name'] = self.error_class(['Please enter the client\'s first name'])
         if len(last_name) < 1:
             self._errors['last_name'] = self.error_class(['Please enter the client\'s last name'])
-        if home_phone and not phone_pattern.match(home_phone):
+        if home_phone and not phone_pattern.match(str(home_phone)):
             self._errors['home_phone'] = self.error_class(['Please enter a valid home phone'])
-        if cell_phone and not phone_pattern.match(cell_phone):
+        if cell_phone and not phone_pattern.match(str(cell_phone)):
             self._errors['cell_phone'] = self.error_class(['Please enter a valid cell phone'])
-        if email_address and not email_pattern.match(email_address):
+        if email_address and not email_pattern.match(str(email_address)):
             self._errors['email_address'] = self.error_class(['Please enter a valid email address'])
 
         return self.cleaned_data
@@ -177,3 +138,6 @@ class JobForm(forms.ModelForm):
             self._errors['title'] = self.error_class(['Please enter a title'])
 
         return self.cleaned_data
+
+
+AddressFormSet = inlineformset_factory(Client, Address, fields=['street', 'city', 'state', 'zip_code'], can_delete=False, extra=1)
