@@ -3,30 +3,43 @@
 {% load static %}
 
 {% block page_content %}
-<div class="m-6">
-    {{ client.email_address }}<br>
-    {{ client.home_phone }}<br>
-    {{ client.cell_phone }}<br>
-    {% for address in client.addresses.all %}
-        {{ address.street }}<br>
-        {{ address.city }}
-    {% endfor %}
-
-    <div class="Box Box--spacious f4">
-        <div class="Box-header">
-            <h3 class="Box-title">{{ client.first_name }} {{ client.last_name }}</h3>
-        </div>
-        <ul>
-            <li class="Box-row">
-            Email: {{ client.email_address }}
-            </li>
-            <li class="Box-row">
-                https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
-            </li>
-        </ul>
-        <div class="Box-footer">
-        Box footer
-        </div>
+<div class="m-6 container-lg">
+    <p class="h1">{{ client.first_name }} {{ client.last_name }}</p>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="mailto:{{ client.email_address }}">{{ client.email_address }}</a></p>
+        <p class="f5">Email</p>
     </div>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="tel:{{ client.home_phone }}">{{ client.home_phone }}</a></p>
+        <p class="f5">Home Phone</p>
+    </div>
+    <br>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="tel:{{ client.cell_phone }}">{{ client.cell_phone }}</a></p>
+        <p class="f5">Cell Phone</p>
+    </div>
+        <!-- https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
+    -->
+
+    <p class="h1">Properties:</p>
+    {% for address in client.addresses.all %}
+        <div class="col-6 float-left p-4 lh-condensed-ultra">
+            <div class="Box">
+                <div class="Box-header">
+                    <h3 class="Box-title">{{ address.street }}</h3>
+                </div>
+                <div class="Box-body">
+                {{ address.street }}, {{ address.city }} {{ address.state }} {{ address.zip_code }}
+                </div>
+                <div class="Box-body">
+                    {% if address.latitude and address.longitude %}
+                        <img width="100%" src="https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/{{ address.latitude }},{{ address.longitude }},12,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw">
+                    {% else %}
+                        <button class="btn mt-3" aria-disabled="true"><span>Loading Map</span><span class="AnimatedEllipsis"></span></button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

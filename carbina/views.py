@@ -7,9 +7,11 @@ from django.views.generic import View, UpdateView, DetailView, DeleteView, ListV
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import formset_factory
 from django.db import transaction
+import django_rq
 from .forms import AddressForm, ClientForm, AddressFormSet
 from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER
+from .async_tasks import forward_geocode_call
 
 _address_template_path = APP_TEMPLATE_FOLDER + "address/"
 _client_template_path = APP_TEMPLATE_FOLDER + "client/"
@@ -54,6 +56,7 @@ class AddressCreateView(View):
     model = Address
     form_class = AddressForm
     template_name = _address_template_path + "create.html"
+    redis_conn = django_rq.get_connection('default')
 
     def get(self, request, *args, **kwargs):
         context = {"form": self.form_class}
@@ -65,6 +68,7 @@ class AddressCreateView(View):
             address_object = form.save(commit=False)
             address_object.created_by = request.user
             address_object.save()
+            self.redis_conn.enqueue(forward_geocode_call, address_object)
             return HttpResponseRedirect(reverse_lazy("address-detail", args=[address_object.pk]))
         return render(request, self.template_name, {"form": form})
 
@@ -104,7 +108,7 @@ class AddressDetailView(DetailView):
     def get_context_data(self, **kwargs):
         self.object = self.get_object()
         context = super(AddressDetailView, self).get_context_data(**kwargs)
-        _address_str = str(self.object.street + ",+" + self.object.city + "+" + self.object.state ).replace(' ', '+')
+        _address_str = str(self.object.street + ",+" + self.object.city + "+" + self.object.state).replace(' ', '+')
         context['address_map_url'] = _address_str
         context['street_label'] = str(self.object.street).replace(" ", "+")
         return context
@@ -122,6 +126,8 @@ class ClientCreateView(CreateView):
     model = Client
     form_class = ClientForm
     template_name = _client_template_path + "create.html"
+    redis_conn = django_rq.get_connection('default')
+    queue = django_rq.get_queue("default")
 
     def get_context_data(self, **kwargs):
         context = super(ClientCreateView, self).get_context_data(**kwargs)
@@ -140,17 +146,29 @@ class ClientCreateView(CreateView):
             self.object = form.save()
             if addresses.is_valid():
                 for address in addresses:
-                    address.instance = self.object
+                    new_addr = address.save(commit=False)
+                    new_addr.client = self.object
                     address.save()
+                    self.queue.enqueue(forward_geocode_call, address)
         return super(ClientCreateView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        address_formset = AddressFormSet(request.POST)
+        address_formset = AddressFormSet(request.POST or None, instance=form.instance)
         if form.is_valid() and address_formset.is_valid():
             client_object = form.save(commit=False)
             client_object.created_by = request.user
             client_object.save()
+            # Iterate through the submitted addresses in the formset
+            for address in address_formset:
+                # Create the address object and set the client as the property owner
+                new_addr = address.save(commit=False)
+                new_addr.client = client_object
+                new_addr.save()
+                # After saving the address, enqueue an API call to get the coordinates of the address
+                # The worker that gets called will update the DB with the latitude and longitude
+                # asynchronously
+                self.queue.enqueue(forward_geocode_call, new_addr)
             return HttpResponseRedirect(reverse_lazy("client-detail", args=[client_object.pk]))
         return render(request, self.template_name, {"form": form})
 

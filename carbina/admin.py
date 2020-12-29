@@ -9,6 +9,7 @@ class AddressAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Address", {"fields": ("street", "city", "state", "zip_code")}),
         ("Client", {"fields": ("owner",)}),
+        ("GeoLocation", {"fields": ("latitude", "longitude")}),
     )
     add_fieldsets = (
         (

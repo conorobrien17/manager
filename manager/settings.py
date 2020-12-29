@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import logging.config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -138,26 +139,28 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'PASSWORD': 'hamilton1751',
+        'PASSWORD': '',
         'DEFAULT_TIMEOUT': 360,
     },
-    'with-sentinel': {
-        'SENTINELS': [('localhost', 26736), ('localhost', 26737)],
-        'MASTER_NAME': 'redismaster',
-        'DB': 0,
-        'PASSWORD': 'secret',
-        'SOCKET_TIMEOUT': None,
-        'CONNECTION_KWARGS': {
-            'socket_connect_timeout': 0.3
+}
+
+LOGGING_CONFIG = None
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/Users/conorobrien/Coding/python/manager/debug.log',
         },
     },
-    'high': {
-        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'), # If you're on Heroku
-        'DEFAULT_TIMEOUT': 500,
-    },
-    'low': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
+    'loggers': {
+        'manager': {
+            'level': 'INFO',
+            'handlers': ['file'],
+            # required to avoid double logging with root logger
+            'propagate': False,
+        },
     }
-}
+})

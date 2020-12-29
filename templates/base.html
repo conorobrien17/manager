@@ -20,10 +20,30 @@
                 <a href="#" class="Header-link">Quotes</a>
             </div>
             <div class="Header-item">
-                <a href="/carbina/clients/" class="Header-link">Clients</a>
+                <details class="dropdown details-reset details-overlay d-inline-block">
+                    <summary class="Header-link text-white p-2 d-inline" aria-haspopup="true">
+                      <a href="/carbina/clients" class="Header-link">Clients</a>
+                      <div class="dropdown-caret"></div>
+                    </summary>
+
+                    <ul class="dropdown-menu dropdown-menu-se">
+                      <li><a class="dropdown-item" href="/carbina/clients/list">List</a></li>
+                      <li><a class="dropdown-item" href="/carbina/clients/create">Create</a></li>
+                    </ul>
+              </details>
             </div>
             <div class="Header-item">
-                <a href="#" class="Header-link">Employees</a>
+                <details class="dropdown details-reset details-overlay d-inline-block">
+                    <summary class="Header-link text-white p-2 d-inline" aria-haspopup="true">
+                      <a href="#" class="Header-link">Employees</a>
+                      <div class="dropdown-caret"></div>
+                    </summary>
+
+                    <ul class="dropdown-menu dropdown-menu-se">
+                      <li><a class="dropdown-item" href="/carbina/clients/list">List</a></li>
+                      <li><a class="dropdown-item" href="/carbina/clients/create">Create</a></li>
+                    </ul>
+              </details>
             </div>
             <div class="Header-item">
                 <a href="#" class="Header-link">Departments</a>

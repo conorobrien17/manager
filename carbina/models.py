@@ -49,6 +49,8 @@ class Address(models.Model):
     city = models.CharField(blank=False, max_length=128, help_text="The town or city where the property is located")
     state = models.CharField(blank=False, max_length=64, help_text="The state where the property is located")
     zip_code = models.PositiveIntegerField(null=False, validators=[MaxValueValidator(99999)])
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
     owner = models.ForeignKey(null=True, to="Client", related_name="addresses", on_delete=models.SET_NULL)
     created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="created_addresses", on_delete=models.SET_NULL)
     created_timestamp = models.DateTimeField(auto_now_add=True)
