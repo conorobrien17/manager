@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ user.first_name }}&#39;s Profile{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<div class="m-6 container-lg">
+    <p class="h1">{{ user.first_name }} {{ user.last_name }}</p>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="mailto:{{ user.work_email }}">{{ user.work_email }}</a></p>
+        <p class="f5">Work Email</p>
+    </div>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="mailto:{{ user.personal_email }}">{{ user.personal_email }}</a></p>
+        <p class="f5">Personal Email</p>
+    </div>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light"><a href="tel:{{ user.phone }}">{{ user.phone }}</a></p>
+        <p class="f5">Phone</p>
+    </div>
+    <div class="col-12 float-left border p-4 lh-condensed-ultra">
+        <p class="f2-light">{{ user.job_title }} // {{ user.department }}</p>
+        <p class="f5">Title and Department</p>
+    </div>
+    <br>
+        <!-- https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
+    -->
+</div>
+{% endblock %}

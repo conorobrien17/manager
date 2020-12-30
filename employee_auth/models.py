@@ -1,6 +1,3 @@
-from django.db import models
-
-# Create your models here.
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, PermissionManager
@@ -89,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             models.Index(fields=['department', ]),
         ]
         permissions = [
-            ("edit_all_users", "Can edit any user with expanded fields"),
+            ("edit_all_users", "Can edit any user"),
             ("edit_username", "Can edit a user\'s username"),
             ("edit_department", "Can assign a user to a department"),
             ("edit_staff_status", "Can edit a user\'s staff status"),

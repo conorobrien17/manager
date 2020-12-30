@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django import forms
+import phone_field
+import phonenumber_field
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.admin import UserCreationForm
@@ -16,8 +18,6 @@ class AddUserForm(UserCreationForm):
             "username", "first_name", "last_name", "personal_email", "company_email", "phone", "job_title",
             "department", "password1", "password2", "groups", "user_permissions")
 
-
-'''
     def check_passwords_match(self):
         if not self.password1 or not self.password2:
             raise forms.ValidationError("Password fields cannot be empty")
@@ -26,13 +26,13 @@ class AddUserForm(UserCreationForm):
         if cleaned_password1 != cleaned_password2:
             raise forms.ValidationError("Passwords do not match")
         return cleaned_password1
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.check_passwords_match())
         if commit:
             user.save()
         return user
-
 
 
 class EditUserForm(forms.ModelForm):
@@ -83,4 +83,3 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Department)
-'''

@@ -13,8 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+
+from manager import settings
 
 urlpatterns = [
     path('', include('dashboard.urls')),
@@ -23,7 +26,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('carbina/', include('carbina.urls')),
     path('django-rq/', include('django_rq.urls'))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = 'Arena Tree Specialists Admin'
 admin.site.index_title = 'Home // Arena Tree Specialists Administration'

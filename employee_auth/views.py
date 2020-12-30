@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, TemplateView, CreateView
 from django.views.generic.edit import UpdateView
 from .models import User, Department
-from .forms import BaseUserEditForm, DepartmentForm
+from .forms import BaseUserEditForm, DepartmentForm, AdminUserEditFormMixin
 from django.contrib.auth.decorators import permission_required, login_required
 from manager.core import paginate_list
 from django.contrib.auth.forms import PasswordChangeForm
@@ -35,7 +35,7 @@ def can_edit_user(request, requested_user_pk):
 class UserListView(ListView):
     model = User
     context_object_name = "users"
-    template_name = _atf + "user/list.html"
+    template_name = _atf + "employees/list.html"
     paginate_by = USER_PAGINATE_BY
 
     def get_queryset(self):
@@ -43,7 +43,7 @@ class UserListView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
-        users = self.get_queryset()
+        users = User.objects.all()
         context["users"] = paginate_list(self, users)
         return context
 
@@ -52,26 +52,14 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     context_object_name = "profile"
-    template_name = _atf + "user/detail.html"
-
-    def get_object(self, queryset=User.objects):
-        return queryset.get(pk=self.kwargs.get("pk"))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['profile'] = self.get_object()
-        return context
-
-    def get(self, request, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return render(request, self.template_name, context)
+    template_name = _atf + "employees/detail.html"
 
 
 @method_decorator(edit_decorators, name="dispatch")
 class UserEditView(UpdateView):
     model = User
     context_object_name = "user"
-    template_name = _atf + "user/edit.html"
+    template_name = _atf + "employees/edit.html"
     form_class = BaseUserEditForm
 
     def get_object(self, queryset=User.objects):
@@ -83,14 +71,12 @@ class UserEditView(UpdateView):
         context["user"] = self.get_object()
         return context
 
-    '''
     def get_form(self, form_class=None):
         if self.request.user.has_perm("employee_auth.edit_all_users"):
             return AdminUserEditFormMixin(instance=self.get_object())
         elif can_edit_user(self.request, self.kwargs.get("pk")):
             return BaseUserEditForm(instance=self.get_object())
         return None
-    '''
 
     def get_success_url(self):
         pk = self.kwargs.get("pk", )
@@ -99,7 +85,6 @@ class UserEditView(UpdateView):
         else:
             return reverse_lazy("user-list", args=[pk])
 
-    '''
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.form_class(request.POST)
@@ -108,7 +93,6 @@ class UserEditView(UpdateView):
             form.save()
             return HttpResponseRedirect(reverse_lazy("user-detail", args=[pk]))
         return render(request, self.template_name, {"form": form})
-    '''
 
 
 @method_decorator(login_required, name="dispatch")

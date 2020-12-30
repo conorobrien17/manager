@@ -11,7 +11,7 @@ import django_rq
 from .forms import AddressForm, ClientForm, AddressFormSet
 from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER
-from .async_tasks import forward_geocode_call
+from .async_tasks import forward_geocode_call, get_static_map_image
 
 _address_template_path = APP_TEMPLATE_FOLDER + "address/"
 _client_template_path = APP_TEMPLATE_FOLDER + "client/"
@@ -98,6 +98,7 @@ class AddressDetailView(DetailView):
     model = Address
     template_name = _address_template_path + 'detail.html'
     context_object_name = 'address'
+    redis_conn = django_rq.get_connection('default')
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
@@ -108,6 +109,8 @@ class AddressDetailView(DetailView):
     def get_context_data(self, **kwargs):
         self.object = self.get_object()
         context = super(AddressDetailView, self).get_context_data(**kwargs)
+        if not self.object.static_map:
+            self.redis_conn.enqueue(get_static_map_image, self.object)
         _address_str = str(self.object.street + ",+" + self.object.city + "+" + self.object.state).replace(' ', '+')
         context['address_map_url'] = _address_str
         context['street_label'] = str(self.object.street).replace(" ", "+")
@@ -193,6 +196,21 @@ class ClientDetailView(DetailView):
     model = Client
     template_name = _client_template_path + 'detail.html'
     context_object_name = 'client'
+    queue = django_rq.get_queue('default')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+
+    def get_object(self, queryset=model):
+        return get_object_or_404(self.model, pk=self.kwargs["pk"])
+
+    def get_context_data(self, **kwargs):
+        self.object = self.get_object()
+        context = super(ClientDetailView, self).get_context_data(**kwargs)
+        for address in self.object.addresses.all():
+            if not address.static_map:
+                self.queue.enqueue(get_static_map_image, address)
+        return context
 
 
 @method_decorator(login_required, name="dispatch")

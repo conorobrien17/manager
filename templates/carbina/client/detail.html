@@ -29,11 +29,13 @@
                     <h3 class="Box-title">{{ address.street }}</h3>
                 </div>
                 <div class="Box-body">
+                Latitude: {{ address.latitude }}<br>
                 {{ address.street }}, {{ address.city }} {{ address.state }} {{ address.zip_code }}
                 </div>
                 <div class="Box-body">
+                    Static map: <img width="100%" src="{{ address.static_map.url }}">
                     {% if address.latitude and address.longitude %}
-                        <img width="100%" src="https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/{{ address.latitude }},{{ address.longitude }},12,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw">
+
                     {% else %}
                         <button class="btn mt-3" aria-disabled="true"><span>Loading Map</span><span class="AnimatedEllipsis"></span></button>
                     {% endif %}
