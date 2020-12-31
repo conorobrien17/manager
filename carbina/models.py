@@ -52,8 +52,11 @@ class Address(models.Model):
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
     static_map = models.ImageField(upload_to='images', null=True, blank=True)
-    owner = models.ForeignKey(null=True, to="Client", related_name="addresses", on_delete=models.SET_NULL)
-    created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="created_addresses", on_delete=models.SET_NULL)
+    distance_shop = models.FloatField(null=True)
+    duration_shop = models.FloatField(null=True)
+    driving_summary = models.CharField(blank=True, max_length=256, help_text='Brief summary of the recommended route to the address from the shop')
+    owner = models.ForeignKey(null=False, to="Client", related_name="addresses", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="created_addresses", on_delete=models.CASCADE)
     created_timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

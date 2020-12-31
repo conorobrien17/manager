@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block page_content %}
-<div class="column is-full-mobile">
+<main role="main" class="container p-5 mt-5">
     <h2>Create Client</h2>
     <form method="post">
         {% csrf_token %}
@@ -11,13 +11,11 @@
 
         {{ form.source.errors }}
         {{ form.source }}
-        <div class="grid-container">
-            <div class="grid-x grid-padding-x">
-                <div class="medium-6 cell">
-                    <label for="id_first_name">{{ form.first_name.label_tag }}</label>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="id_first_name">{{ form.first_name.label_tag }}</label><br>
                     {{ form.first_name.errors }}
-                </div>
-                <div class="medium-6 cell">
                     {{ form.first_name }}
                 </div>
             </div>

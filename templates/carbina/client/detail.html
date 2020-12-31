@@ -3,45 +3,55 @@
 {% load static %}
 
 {% block page_content %}
-<div class="m-6 container-lg">
+<main role="main" class="container p-5 mt-5">
     <p class="h1">{{ client.first_name }} {{ client.last_name }}</p>
-    <div class="col-12 float-left border p-4 lh-condensed-ultra">
-        <p class="f2-light"><a href="mailto:{{ client.email_address }}">{{ client.email_address }}</a></p>
-        <p class="f5">Email</p>
-    </div>
-    <div class="col-12 float-left border p-4 lh-condensed-ultra">
-        <p class="f2-light"><a href="tel:{{ client.home_phone }}">{{ client.home_phone }}</a></p>
-        <p class="f5">Home Phone</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="mailto:{{ client.email_address }}">{{ client.email_address }}</a></p>
+                <p class="fs-5">Email</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="tel:{{ client.home_phone }}">{{ client.home_phone }}</a></p>
+                <p class="fs-5">Home Phone</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="tel:{{ client.cell_phone }}">{{ client.cell_phone }}</a></p>
+                <p class="fs-5">Cell Phone</p>
+            </div>
+        </div>
     </div>
     <br>
-    <div class="col-12 float-left border p-4 lh-condensed-ultra">
-        <p class="f2-light"><a href="tel:{{ client.cell_phone }}">{{ client.cell_phone }}</a></p>
-        <p class="f5">Cell Phone</p>
-    </div>
+
         <!-- https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
     -->
 
     <p class="h1">Properties:</p>
     {% for address in client.addresses.all %}
-        <div class="col-6 float-left p-4 lh-condensed-ultra">
-            <div class="Box">
-                <div class="Box-header">
-                    <h3 class="Box-title">{{ address.street }}</h3>
-                </div>
-                <div class="Box-body">
-                Latitude: {{ address.latitude }}<br>
-                {{ address.street }}, {{ address.city }} {{ address.state }} {{ address.zip_code }}
-                </div>
-                <div class="Box-body">
-                    Static map: <img width="100%" src="{{ address.static_map.url }}">
-                    {% if address.latitude and address.longitude %}
-
-                    {% else %}
-                        <button class="btn mt-3" aria-disabled="true"><span>Loading Map</span><span class="AnimatedEllipsis"></span></button>
-                    {% endif %}
+        <div class="card" style="width: 18rem;">
+            {% if address.static_map %}
+            <img src="{{ address.static_map.url }}" class="card-img-top" alt="...">
+            {% else %}
+            Loading map...
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ address.street }}<br>{{ address.city }}, {{ address.state }} {{ address.zip_code }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>{{ address.distance_shop | floatformat:2 }} miles from the shop</strong><br>using {{ address.driving_summary }}<br>
+                    <strong>Drive Time:</strong> {{ address.duration_shop | floatformat:0 }} minutes</li>
+            </ul>
+            <div class="card-body">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <a class="btn btn-primary" href="https://www.google.com/maps/dir/2933+W+Germantown+Pike,+Eagleville,+PA+19403/{{ address.street }},+{{ address.city }},+{{ address.state }}+{{ address.zip_code }}/@{{ address.longitude }},{{ address.latitude }}" target="_blank" class="card-link">Google Maps</a>
+                    <a class="btn btn-primary" href="https://maps.apple.com/?daddr={{ address.street}}, {{ address.city }} {{ address.state }} {{ address.zip_code }}&dirflg=d&saddr=2933%20W%20Germantown%20Pike,%202933%20W%20Germantown%20Pike,%20Norristown,%20PA%20%2019403,%20United%20States" target="_blank" class="card-link">Apple Maps</a>
                 </div>
             </div>
         </div>
     {% endfor %}
-</div>
+</main>
 {% endblock %}
