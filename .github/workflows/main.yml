@@ -1,7 +1,0 @@
-name: Python Django Coverage GitHub Action
-  # You may pin to the exact commit or the version.
-  with:
-    # Application
-    django-app: manager
-    # Minimum allowed code coverage
-    minimum-coverage: '40' 
