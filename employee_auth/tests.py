@@ -22,31 +22,31 @@ class UserModelTests(TestCase):
         pass
 
     def test_username(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_username = test_user.username
         self.assertEquals(actual_username, dummy_users[0].get("username"))
 
     def test_first_name(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_first_name = test_user.first_name
         self.assertEquals(actual_first_name, dummy_users[0].get("first_name"))
 
     def test_last_name(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_last_name = test_user.last_name
         self.assertEquals(actual_last_name, dummy_users[0].get("last_name"))
 
     def test_personal_email(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_personal_email = test_user.personal_email
         self.assertEquals(actual_personal_email, dummy_users[0].get("personal_email"))
 
     def test_company_email(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_company_email = test_user.company_email
         self.assertEquals(actual_company_email, dummy_users[0].get("company_email"))
 
     def test_phone(self):
-        test_user = User.objects.get(,
+        test_user = User.objects.get(pk=1)
         actual_phone = test_user.phone.raw_phone
         self.assertEquals(actual_phone, dummy_users[0].get("phone"))
