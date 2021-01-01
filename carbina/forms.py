@@ -13,7 +13,7 @@ EMAIL_VALIDATION_REGEX = "[^@]+@[^@]+\.[^@]+"
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
-        fields = ('title', 'description', 'quantity', 'price')
+        fields = ('title', 'description', 'quantity')
 
     def __init__(self, *args, **kwargs):
         super(ServiceForm, self).__init__(*args, **kwargs)
@@ -21,12 +21,12 @@ class ServiceForm(forms.ModelForm):
     def clean(self):
         super(ServiceForm, self).clean()
         title = self.cleaned_data.get('title')
-        price = self.cleaned_data.get('price')
+        # price = self.cleaned_data.get('price')
 
         if len(title) < 4:
             self._errors['title'] = self.error_class(['Please enter a more descriptive title'])
-        if not price:
-            self._errors['price'] = self.error_class(['Please enter the cost of the service'])
+        #if not price:
+        #    self._errors['price'] = self.error_class(['Please enter the cost of the service'])
 
         return self.cleaned_data
 
@@ -104,7 +104,7 @@ class ClientForm(forms.ModelForm):
 class QuoteForm(forms.ModelForm):
     class Meta:
         model = Quote
-        fields = ('title', 'salesman', 'scheduled_time', 'service_items', 'office_notes', 'quote_notes')
+        fields = ('title', 'salesman', 'scheduled_time', 'office_notes', 'quote_notes')
 
     def __init__(self, *args, **kwargs):
         super(QuoteForm, self).__init__(*args, **kwargs)
@@ -125,7 +125,7 @@ class QuoteForm(forms.ModelForm):
 class JobForm(forms.ModelForm):
     class Meta:
         model = Job
-        fields = ('title', 'quote', 'foreman', 'scheduled_time', 'service_items', 'images', 'storm_job')
+        fields = ('title', 'quote', 'foreman', 'scheduled_time', 'images', 'storm_job')
 
     def __init__(self, *args, **kwargs):
         super(JobForm, self).__init__(*args, **kwargs)

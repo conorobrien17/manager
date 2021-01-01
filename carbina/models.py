@@ -9,14 +9,28 @@ class Service(models.Model):
     title = models.CharField(blank=False, max_length=128, help_text="The name of the service")
     description = models.TextField(blank=True, help_text="A description of this service and what is typically done.")
     quantity = models.PositiveIntegerField(null=True, default=1, help_text="The quantity of this service item")
-    price = models.FloatField(null=True, validators=[MinValueValidator(0)], help_text="The quoted price of the service")
 
     class Meta:
+        abstract = True
         ordering = ["title"]
         verbose_name_plural = "Services"
 
     def __str__(self):
         return self.title
+
+
+class QuoteItem(Service):
+    price = models.FloatField(null=True, validators=[MinValueValidator(0)], help_text="The quoted price of the service")
+    author = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="quoted_services",
+                               on_delete=models.SET_NULL)
+
+    class Meta:
+        abstract = False
+        verbose_name_plural = "QuoteItems"
+
+    @property
+    def total_cost(self):
+        return "${:,.2f}".format(self.price * self.quantity)
 
 
 class HistoryLogUpdate(models.Model):
@@ -60,7 +74,9 @@ class Address(models.Model):
     created_timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name_plural = "Addresses"
+        verbose_name_plural = 'Addresses'
+        ordering = ['city']
+        unique_together = ['street', 'city', 'state', 'zip_code']
 
     def __str__(self):
         return self.street + ", " + self.city + " " + self.state
@@ -73,6 +89,7 @@ class Status(models.Model):
     title = models.CharField(blank=False, max_length=32, help_text="The title of a job/quote status")
     theme = models.CharField(blank=False, max_length=32, help_text="The color theme for this status")
     modified = models.DateTimeField(auto_now_add=True)
+    job = models.ForeignKey(null=False, to='Job', related_name='statuses', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -103,12 +120,10 @@ class Quote(models.Model):
     title = models.CharField(blank=False, max_length=64, help_text="A brief descriptive title of the job")
     salesman = models.ForeignKey(blank=True, null=True, to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL)
     scheduled_time = models.DateTimeField(auto_now=False, help_text="The time and date scheduled for the quote")
-    service_items = models.ForeignKey(null=True, to="Service", related_name="services_requested", on_delete=models.SET_NULL)
-    status_history = models.ForeignKey(blank=True, null=True, to="Status", related_name="status_history",
-                                       on_delete=models.SET_NULL)
     office_notes = models.TextField(help_text="Office and administrative notes about the quote")
     quote_notes = models.TextField(help_text="Notes for the quote and potential job itself")
     client = models.ForeignKey(null=True, to="Client", related_name="quotes", on_delete=models.SET_NULL)
+    address = models.ForeignKey(null=True, to='Address', related_name='quotes', on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["-scheduled_time", "title"]
@@ -129,9 +144,6 @@ class Job(models.Model):
     quote = models.OneToOneField(null=True, to="Quote", related_name="quote", on_delete=models.SET_NULL)
     foreman = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL)
     scheduled_time = models.DateTimeField(auto_now=False, help_text="The scheduled start time of the job")
-    service_items = models.ForeignKey(null=True, to="Service", related_name="services", on_delete=models.SET_NULL)
-    status_history = models.ForeignKey(null=True, to="Status", related_name="job_status_history", on_delete=models.SET_NULL)
-    history_log = models.ForeignKey(null=True, to="HistoryLogUpdate", related_name="history_log", on_delete=models.SET_NULL)
     images = models.ForeignKey(null=True, to="JobPicture", related_name="images", on_delete=models.SET_NULL)
     created_timestamp = models.DateTimeField(auto_now_add=True)
     storm_job = models.BooleanField(default=False, help_text="Is this a storm damage job?")

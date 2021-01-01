@@ -13,37 +13,28 @@
         {{ form.source }}
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
-                    <label for="id_first_name">{{ form.first_name.label_tag }}</label><br>
+                <div class="form-floating col-md-6">
                     {{ form.first_name.errors }}
-                    {{ form.first_name }}
+                    <input type="text" class="form-control col-form-label-lg" name="{{ form.first_name.name }}" maxlength="64" required="" id="{{ form.first_name.id_for_label }}" placeholder="name">
+                    <label class="col-form-label-lg" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label_tag }}</label>
                 </div>
-            </div>
-            <div class="grid-x grid-padding-x">
-                <div class="medium-6 cell">
-                    <label for="id_last_name">{{ form.last_name.label_tag }}</label>
+                <div class="form-floating col-md-6">
                     {{ form.last_name.errors }}
-                </div>
-                <div class="medium-6 cell">
-                    {{ form.last_name }}
+                    <input type="text" class="form-control col-form-label-lg" name="{{ form.last_name.name }}" maxlength="64" required="" id="{{ form.last_name.id_for_label }}" placeholder="name">
+                    <label class="col-form-label-lg" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label_tag }}</label>
                 </div>
             </div>
-            <div class="grid-x grid-padding-x">
-                <div class="medium-6 cell">
-                    <label for="id_home_phone">{{ form.home_phone.label_tag }}</label>
+            <br>
+            <div class="row">
+                <div class="form-floating col-md-6">
                     {{ form.home_phone.errors }}
+                    <input type="text" class="form-control" name="{{ form.home_phone.name }}" maxlength="12" required="" id="{{ form.home_phone.id_for_label }}" placeholder="home_phone">
+                    <label class="col-form-label-lg" for="{{ form.home_phone.id_for_label }}">{{ form.home_phone.label_tag }}</label>
                 </div>
-                <div class="medium-6 cell">
-                    {{ form.home_phone }}
-                </div>
-            </div>
-            <div class="grid-x grid-padding-x">
-                <div class="medium-6 cell">
-                    <label for="id_cell_phone">{{ form.cell_phone.label_tag }}</label>
+                <div class="form-floating col-md-6">
                     {{ form.cell_phone.errors }}
-                </div>
-                <div class="medium-6 cell">
-                    {{ form.cell_phone }}
+                    <input type="text" class="form-control" name="{{ form.cell_phone.name }}" maxlength="64" required="" id="{{ form.cell_phone.id_for_label }}" placeholder="name">
+                    <label class="col-form-label-lg" for="{{ form.cell_phone.id_for_label }}">{{ form.cell_phone.label_tag }}</label>
                 </div>
             </div>
             <div class="grid-x grid-padding-x">
@@ -100,7 +91,7 @@
         </fieldset>
         <button type="submit" class="success button float-center">Create</button>
     </form>
-</div>
+</main>
 {% endblock %}
 
 {% block scripts %}

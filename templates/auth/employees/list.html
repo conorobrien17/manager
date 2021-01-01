@@ -3,9 +3,9 @@
 {% load static %}
 
 {% block page_content %}
-<div class="column is-full-mobile">
-    <h2>Employee List</h2>
-    <table class="hover table-scroll">
+<main role="main" class="container p-5 mt-5">
+    <h2 class="h2">Employee List</h2>
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th width="300">ID</th>
@@ -29,5 +29,5 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
+</main>
 {% endblock %}

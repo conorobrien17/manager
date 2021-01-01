@@ -39,14 +39,15 @@
             Loading map...
             {% endif %}
             <div class="card-body">
-                <h5 class="card-title">{{ address.street }}<br>{{ address.city }}, {{ address.state }} {{ address.zip_code }}</h5>
+                <h5 class="card-title">{{ address.street }}&nbsp; <span class="badge bg-info text-dark">{{ address.distance_shop | floatformat:2 }} mi.</span></h5>
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item"><strong>{{ address.distance_shop | floatformat:2 }} miles from the shop</strong><br>using {{ address.driving_summary }}<br>
+                <li class="list-group-item">{{ address.street }}<br>{{ address.city }}, {{ address.state }} {{ address.zip_code }}</li>
+                <li class="list-group-item"><strong>Route: </strong>{{ address.driving_summary }}<br>
                     <strong>Drive Time:</strong> {{ address.duration_shop | floatformat:0 }} minutes</li>
             </ul>
             <div class="card-body">
-                <div class="btn-group" role="group" aria-label="Basic example">
+                <div class="btn-group" role="group" aria-label="GPS Links">
                     <a class="btn btn-primary" href="https://www.google.com/maps/dir/2933+W+Germantown+Pike,+Eagleville,+PA+19403/{{ address.street }},+{{ address.city }},+{{ address.state }}+{{ address.zip_code }}/@{{ address.longitude }},{{ address.latitude }}" target="_blank" class="card-link">Google Maps</a>
                     <a class="btn btn-primary" href="https://maps.apple.com/?daddr={{ address.street}}, {{ address.city }} {{ address.state }} {{ address.zip_code }}&dirflg=d&saddr=2933%20W%20Germantown%20Pike,%202933%20W%20Germantown%20Pike,%20Norristown,%20PA%20%2019403,%20United%20States" target="_blank" class="card-link">Apple Maps</a>
                 </div>
