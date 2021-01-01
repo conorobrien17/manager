@@ -1,7 +1,6 @@
 name: Python Django Coverage GitHub Action
   # You may pin to the exact commit or the version.
-  # uses: dc740/django-coveragepy-github-action@f8581a749bd8cf75838b120a6aa07dc40a060e61
-  uses: dc740/django-coveragepy-github-action@0.9
+  uses: actions/python-django-coverage-gitHub-action@0.9
   with:
     # Application
     django-app: manager
