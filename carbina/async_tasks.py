@@ -13,8 +13,8 @@ MAPBOX_SMAP_URL = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/'
 MAPBOX_DRIVING_URL = 'https://api.mapbox.com/directions/v5/mapbox/driving/'
 logger = logging.getLogger('file')
 
-SHOP_LAT = -75.375504
-SHOP_LONG = 40.159940
+SHOP_LAT = '-75.375504'
+SHOP_LONG = '40.159940'
 
 LATITUDE_INDEX = 0
 LONGITUDE_INDEX = 1
@@ -33,7 +33,7 @@ def forward_geocode_call(address):
     # See documentation for the call made here: https://docs.mapbox.com/api/search/geocoding/#forward-geocoding
     try:
         # TODO cleanup the way this gets called and store the image in the model to avoid API calls/more dns requests
-        requestURL = address.street + " " + address.city + " " + address.state + " " + str(address.zip_code) + ".json?access_token=" + MAPBOX_KEY
+        requestURL = MAPBOX_GEOCODE_URL + address.street + " " + address.city + " " + address.state + " " + str(address.zip_code) + ".json?access_token=" + MAPBOX_KEY
         json = map_box_json_call(requestURL)
         coordinates = json.get('features')[0].get('center')
 
@@ -52,6 +52,8 @@ def forward_geocode_call(address):
             address.save()
     except HTTPError as error:
         logger.exception("Error receiving geocoding API response")
+
+    return address
 
 
 @job('default', timeout=3600)
@@ -84,17 +86,38 @@ def get_static_map_image(address):
 @job('default', timeout=3600)
 def get_navigation_info(address_pk):
     address = Address.objects.get(pk=int(address_pk))
+    # Cast the float values to strings
     latitude = str(address.latitude)
     longitude = str(address.longitude)
-    request_url = MAPBOX_DRIVING_URL + str(SHOP_LAT) + "," + str(SHOP_LONG) + ";" + latitude + "," + longitude + '?access_token=' + MAPBOX_KEY
-    json = map_box_json_call(request_url)
-    routes = json.get('routes')[0]
-    duration_seconds = routes.get('duration')
-    duration = duration_seconds / 60
-    distance_meters = routes.get('distance')
-    distance = distance_meters / METERS_TO_MILES
-    summary = routes.get('legs')[0].get('summary')
-    address.distance_shop = float(distance)
-    address.duration_shop = float(duration)
-    address.driving_summary = str(summary)
-    address.save()
+
+    # Build the URL for the API call
+    request_url = MAPBOX_DRIVING_URL + SHOP_LAT + "," + SHOP_LONG + ";" + latitude + "," + longitude + '?access_token=' + MAPBOX_KEY
+
+    try:
+        # Issue the API call, store the JSON returned by the call
+        json = map_box_json_call(request_url)
+        # Parse the JSON
+        routes = json.get('routes')[0]
+        duration_seconds = routes.get('duration')
+        distance_meters = routes.get('distance')
+        summary = routes.get('legs')[0].get('summary')
+
+        if duration_seconds:
+            address.duration_shop = float(duration_seconds / 60)
+        else:
+            address.duration_shop = None
+
+        if distance_meters:
+            address.distance_shop = distance_meters / METERS_TO_MILES
+        else:
+            address.distance_shop = None
+
+        if summary:
+            address.driving_summary = summary
+        else:
+            address.driving_summary = None
+
+        address.save()
+        logger.log("Updated Address with navigation information")
+    except HTTPError as error:
+        logger.error("HTTP error occurred while fetching navigation info for Address")
