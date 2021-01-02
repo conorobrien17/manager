@@ -19,13 +19,20 @@ SHOP_LONG = '40.159940'
 LATITUDE_INDEX = 0
 LONGITUDE_INDEX = 1
 
+RETURN_ERROR = -1
+
 METERS_TO_MILES = 1609.344
+
 
 # TODO watch out for HTTP 429 Too Many Requests from Mapbox when usage exceeds limit of requests/min
 def map_box_json_call(request_url):
     response = requests.get(request_url)
-    json = response.json()
-    return json
+    if response.status_code == 200:
+        json = response.json()
+        return json
+    if response.status_code == 429:
+        return response.status_code
+    return RETURN_ERROR
 
 
 @job('default', timeout=3600)
@@ -58,13 +65,13 @@ def forward_geocode_call(address):
 
 @job('default', timeout=3600)
 def get_static_map_image(address):
+    if address.latitude is None or address.longitude is None:
+        return RETURN_ERROR
+
     latitude = str(address.latitude)
     longitude = str(address.longitude)
 
-    if not latitude and not longitude:
-        return -1
-
-    image_url = MAPBOX_SMAP_URL + str(latitude) + "," + str(longitude) + ",12,0/500x500@2x?access_token=" + MAPBOX_KEY
+    image_url = MAPBOX_SMAP_URL + latitude + "," + longitude + ",12,0/500x500@2x?access_token=" + MAPBOX_KEY
     try:
         response = requests.get(image_url, stream=True)
         if response.status_code != requests.codes.ok:
@@ -77,15 +84,16 @@ def get_static_map_image(address):
                 break
             temp_image.write(block)
 
-        filename = str(address.pk) + "_" + str(latitude) + "_" + str(longitude) + ".png"
+        filename = str(address.pk) + "_" + latitude + "_" + longitude + ".png"
         address.static_map.save(filename, files.File(temp_image))
     except HTTPError as error:
         logger.warning("HTTPError occurred while getting static map image")
 
+    return address
+
 
 @job('default', timeout=3600)
-def get_navigation_info(address_pk):
-    address = Address.objects.get(pk=int(address_pk))
+def get_navigation_info(address):
     # Cast the float values to strings
     latitude = str(address.latitude)
     longitude = str(address.longitude)
@@ -118,6 +126,7 @@ def get_navigation_info(address_pk):
             address.driving_summary = None
 
         address.save()
-        logger.log("Updated Address with navigation information")
+        logger.debug("Updated Address with navigation information")
     except HTTPError as error:
         logger.error("HTTP error occurred while fetching navigation info for Address")
+    return address

@@ -212,7 +212,7 @@ class ClientDetailView(DetailView):
             if not address.static_map:
                 self.queue.enqueue(get_static_map_image, address)
             if are_nav_values_loaded(address) == 1:
-                self.queue.enqueue(get_navigation_info, address.pk)
+                self.queue.enqueue(get_navigation_info, address)
         return context
 
 
