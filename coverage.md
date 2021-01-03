@@ -27,7 +27,7 @@
 | `employee_auth/migrations/0001_initial.py` | 9 | 0 | 100% |
 | `employee_auth/migrations/0002_auto_20201230_2023.py` | 4 | 0 | 100% |
 | `employee_auth/migrations/__init__.py` | 0 | 0 | 100% |
-| `employee_auth/models.py` | 78 | 6 | 92% |
+| `employee_auth/models.py` | 78 | 5 | 94% |
 | `employee_auth/tests.py` | 34 | 0 | 100% |
 | `employee_auth/urls.py` | 3 | 0 | 100% |
 | `employee_auth/views.py` | 135 | 61 | 55% |
@@ -41,9 +41,9 @@
 | `carbina/tests/test_utils.py` | 3 | 0 | 100% |
 | `employee_auth/migrations/0003_auto_20210102_2348.py` | 4 | 0 | 100% |
 | `employee_auth/tests/__init__.py` | 0 | 0 | 100% |
-| `employee_auth/tests/test_models.py` | 97 | 0 | 100% |
+| `employee_auth/tests/test_models.py` | 111 | 0 | 100% |
 | `employee_auth/migrations/0004_remove_user_company_email_password.py` | 4 | 0 | 100% |
-| **Total** | **1260** | **246** | **80%** |
+| **Total** | **1274** | **245** | **81%** |
 
 
-<small>Generated at 2021-01-03 00:48:10.733919</small>
+<small>Generated at 2021-01-03 01:23:38.064983</small>
