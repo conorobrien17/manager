@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, PermissionManager
 from django.conf import settings
@@ -6,9 +5,6 @@ from django.contrib.auth.hashers import is_password_usable, make_password, check
 from django.urls import reverse
 from phone_field import PhoneField
 import logging
-from .apps import EmployeeAuthConfig as AppSettings
-from django.contrib.auth.decorators import permission_required
-from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
@@ -16,7 +12,7 @@ class UserManager(BaseUserManager, PermissionManager):
     """ Create a new user account """
 
     def create_user(self, username, personal_email, company_email, phone, job_title, first_name, last_name, password=None, commit=True):
-        if not username:
+        if not username or len(username.strip()) < 1:
             raise ValueError('Username is required')
         if not personal_email:
             raise ValueError('Personal email address is required')
@@ -27,7 +23,7 @@ class UserManager(BaseUserManager, PermissionManager):
         if not phone:
             raise ValueError('User\'s phone number must be entered')
 
-        user = self.model(
+        user = User.objects.create(
             username=username,
             personal_email=self.normalize_email(personal_email),
             company_email=self.normalize_email(company_email),
@@ -60,7 +56,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=64)
     personal_email = models.EmailField(max_length=128, unique=True)
     company_email = models.EmailField(max_length=128, unique=True)
-    company_email_password = models.CharField(max_length=512, blank=True)
     department = models.ForeignKey("Department", on_delete=models.SET_NULL, related_name="users", blank=True, null=True)
     job_title = models.CharField(max_length=64)
     phone = PhoneField(blank=False, help_text="Best phone number to contact")
@@ -95,8 +90,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ['username']
 
     def __repr__(self):
-        return {'username': self.username, 'first_name': self.first_name, 'last_name': self.last_name,
-                'personal_email': self.personal_email, 'company_email': self.company_email, "phone": self.phone, "job_title": self.job_title, "department": self.department, "is_active": self.is_active, "last_login": self.last_login}
+        return {
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'personal_email': self.personal_email,
+            'company_email': self.company_email,
+            'phone': self.phone.raw_phone,
+            'job_title': self.job_title,
+            'department': self.department,
+            'is_active': self.is_active,
+            'last_login': self.last_login}
 
     def __str__(self):
         return self.username
@@ -104,42 +108,34 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_absolute_url(self):
         return reverse('user-detail', args=[str(self.pk)])
 
-    def ping_login(self, login_time=datetime.utcnow()):
+    def ping_login(self, login_time=timezone.now()):
         logging.info("[LOGIN] " + self.full_name + " logged in successfully")
         self.last_login = login_time
-
-    @permission_required('employee_auth.modify_comp_email_password')
-    def set_company_email_password(self, password_str):
-        if not is_password_usable(password_str):
-            raise ValidationError("Password is unusable")
-        company_email_password = make_password(password_str)
-        logging.info("[COMP. EMAIL PASS. SET] " + self.full_name + " company email password was set")
-        self.company_email_password = company_email_password
         self.save()
-
-    def check_company_email_password(self, password_str):
-        if not is_password_usable(password_str):
-            raise ValidationError("Password entered to check is unusable")
-        return check_password(password_str, self.company_email_password)
 
     @property
     def full_name(self):
         return self.first_name.title() + " " + self.last_name.title()
-
-    def get_full_name(self):
-        return self.full_name
 
     def get_short_name(self):
         return self.first_name.title()
 
 
 class Department(models.Model):
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128, unique=True, help_text='The name of the department')
     manager = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="departments", on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(help_text="A description of the department and what it\'s employees do.", blank=True)
 
     def get_absolute_url(self):
         return reverse("department-detail", args=[str(self.pk)])
+
+    def __repr__(self):
+        return {
+            'name': self.name,
+            'manager': self.manager,
+            'manager_id': self.manager_id,
+            'description': self.description
+        }
 
     def __str__(self):
         return str(self.name).title()

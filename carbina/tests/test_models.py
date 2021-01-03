@@ -1,6 +1,8 @@
 from django.test import TestCase
 from carbina.models import Client, Address
 from carbina.async_tasks import forward_geocode_call
+from carbina.utils import are_nav_values_loaded
+from carbina.apps import FALSE_FLAG, TRUE_FLAG, ERROR_FLAG, OK_FLAG
 
 _fn = 'Conor'
 _ln = 'Tester'
@@ -46,6 +48,25 @@ class AddressTest(TestCase):
         address = Address.objects.get(pk=1)
         self.assertEqual(address.get_absolute_url(), '/carbina/addresses/1/detail')
 
+    def test_are_nav_values_loaded(self):
+        address = Address.objects.get(pk=1)
+        tmp = are_nav_values_loaded(address)
+
+        # Test empty condition
+        self.assertEqual(tmp, FALSE_FLAG)
+
+        # Load dummy data into the object and check again
+        address.driving_summary = "PA RT 23"
+        address.duration_shop = 15.6104341
+        address.distance_shop = 8.1234521
+        address.save()
+        tmp = are_nav_values_loaded(address)
+        self.assertEqual(tmp, TRUE_FLAG)
+
+        # Test for empty address
+        tmp = are_nav_values_loaded(None)
+        self.assertEqual(tmp, ERROR_FLAG)
+
     def test_geocode_latitude(self):
         address = Address.objects.get(pk=1)
         address = forward_geocode_call(address)
@@ -56,4 +77,11 @@ class AddressTest(TestCase):
         address = Address.objects.get(pk=1)
         address = forward_geocode_call(address)
         address.save()
+        self.assertEqual(address.longitude, 40.122863)
+
+    def test_geocode_together(self):
+        address = Address.objects.get(pk=1)
+        address = forward_geocode_call(address)
+        address.save()
+        self.assertEqual(address.latitude, -75.497311)
         self.assertEqual(address.longitude, 40.122863)

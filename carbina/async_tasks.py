@@ -4,8 +4,8 @@ from django.core import files
 import requests
 from tempfile import NamedTemporaryFile
 from requests.exceptions import HTTPError
-from urllib import parse
 from carbina.models import Address
+from carbina.apps import ERROR_FLAG
 
 MAPBOX_KEY = 'pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw'
 MAPBOX_GEOCODE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
@@ -19,8 +19,6 @@ SHOP_LONG = '40.159940'
 LATITUDE_INDEX = 0
 LONGITUDE_INDEX = 1
 
-RETURN_ERROR = -1
-
 METERS_TO_MILES = 1609.344
 
 
@@ -32,7 +30,7 @@ def map_box_json_call(request_url):
         return json
     if response.status_code == 429:
         return response.status_code
-    return RETURN_ERROR
+    return ERROR_FLAG
 
 
 @job('default', timeout=3600)
@@ -66,7 +64,7 @@ def forward_geocode_call(address):
 @job('default', timeout=3600)
 def get_static_map_image(address):
     if address.latitude is None or address.longitude is None:
-        return RETURN_ERROR
+        return ERROR_FLAG
 
     latitude = str(address.latitude)
     longitude = str(address.longitude)
@@ -94,6 +92,9 @@ def get_static_map_image(address):
 
 @job('default', timeout=3600)
 def get_navigation_info(address):
+    if address is None or address.latitude is None or address.longitude is None:
+        return ERROR_FLAG
+
     # Cast the float values to strings
     latitude = str(address.latitude)
     longitude = str(address.longitude)

@@ -3,6 +3,7 @@ from django.test import Client as TestClient
 from employee_auth.models import User
 from carbina.models import Client, Address
 import carbina.async_tasks as tasks
+from carbina.apps import ERROR_FLAG
 
 _fn = 'Conor'
 _ln = 'Tester'
@@ -15,6 +16,14 @@ _state = 'PA'
 _zip_code = 19460
 _lat = -75.497311
 _long = 40.122863
+
+# **NOTE**
+# These expected values rely on MapBox's API call and are subject to change,
+# if these are coming back false, try the API call to get the values for the
+# address and update the expected values. Otherwise you messed up somewhere :)
+_EXPECTED_DURATION = 15.735033333333332
+_EXPECTED_DISTANCE = 8.328991191441979
+_EXPECTED_SUMMARY = 'North Park Avenue, Valley Forge Road'
 
 
 class AsyncCalls(TestCase):
@@ -54,9 +63,11 @@ class AsyncCalls(TestCase):
         self.address.longitude = None
         self.address.save()
         address = tasks.get_static_map_image(self.address)
-        self.assertEqual(address, tasks.RETURN_ERROR)
+        self.assertEqual(address, ERROR_FLAG)
 
     def test_nagivation_info(self):
+        tmp = tasks.get_navigation_info(None)
+        self.assertEqual(tmp, ERROR_FLAG)
         address = tasks.get_navigation_info(self.address)
         self.assertEqual(address.duration_shop, 15.735033333333332)
         self.assertEqual(address.distance_shop, 8.328991191441979)
