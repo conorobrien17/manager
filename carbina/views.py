@@ -88,11 +88,6 @@ class AddressListView(ListView):
     context_object_name = "addresses"
     paginate_by = ADDR_PAGINATE_BY
 
-    def get_context_data(self, **kwargs):
-        context = super(AddressListView, self).get_context_data(**kwargs)
-        context[self.context_object_name] = Address.objects.all()
-        return context
-
 
 @method_decorator(login_required, name="dispatch")
 class AddressDetailView(DetailView):
@@ -135,7 +130,7 @@ class ClientCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(ClientCreateView, self).get_context_data(**kwargs)
-        if self.request.POST:
+        if self.request.POST and self.request.form:
             context['addresses'] = AddressFormSet(self.request.POST)
         else:
             context['addresses'] = AddressFormSet()

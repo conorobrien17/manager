@@ -6,7 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from .models import *
 import re as regex
 
-PHONE_VALIDATION_REGEX = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\.\/0-9]*$"
+PHONE_VALIDATION_REGEX = ".*?(\(?\d{3})? ?[\.-]? ?\d{3} ?[\.-]? ?\d{4}.*?"
 EMAIL_VALIDATION_REGEX = "[^@]+@[^@]+\.[^@]+"
 
 
@@ -87,15 +87,15 @@ class ClientForm(forms.ModelForm):
         phone_pattern = regex.compile(PHONE_VALIDATION_REGEX)
         email_pattern = regex.compile(EMAIL_VALIDATION_REGEX)
 
-        if len(first_name) < 1:
+        if not first_name or len(first_name) < 1:
             self._errors['first_name'] = self.error_class(['Please enter the client\'s first name'])
-        if len(last_name) < 1:
+        if not last_name or len(last_name) < 1:
             self._errors['last_name'] = self.error_class(['Please enter the client\'s last name'])
-        if home_phone and not phone_pattern.match(str(home_phone)):
+        if not home_phone or (home_phone and not phone_pattern.match(str(home_phone))):
             self._errors['home_phone'] = self.error_class(['Please enter a valid home phone'])
-        if cell_phone and not phone_pattern.match(str(cell_phone)):
+        if not home_phone or (cell_phone and not phone_pattern.match(str(cell_phone))):
             self._errors['cell_phone'] = self.error_class(['Please enter a valid cell phone'])
-        if email_address and not email_pattern.match(str(email_address)):
+        if not email_address or (email_address and not email_pattern.match(str(email_address))):
             self._errors['email_address'] = self.error_class(['Please enter a valid email address'])
 
         return self.cleaned_data
