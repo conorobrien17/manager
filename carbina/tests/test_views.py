@@ -92,7 +92,7 @@ class ClientListView(TestCase):
         self.assertListEqual(last_names, _last_names)
         self.assertListEqual(emails, _emails)
 
-'''
+
 class ClientDetailView(TestCase):
     t_client: TestClient
     user: User
@@ -139,7 +139,6 @@ class ClientDetailView(TestCase):
         response = self.t_client.get(reverse('client-detail', args=[1]), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'carbina/client/detail.html')
-'''
 
 
 class ClientCreateView(TestCase):
