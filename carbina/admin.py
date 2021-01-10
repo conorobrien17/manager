@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django import forms
-from django.contrib.auth.admin import UserCreationForm
 from .models import Address, Client
 
 

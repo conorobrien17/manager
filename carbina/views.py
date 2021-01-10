@@ -5,9 +5,9 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import View, UpdateView, DetailView, DeleteView, ListView, CreateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.forms import formset_factory
 from django.db import transaction
 import django_rq
+from redis import exceptions as redis_exceptions
 from .forms import AddressForm, ClientForm, AddressFormSet
 from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER, OK_FLAG, FALSE_FLAG, TRUE_FLAG
@@ -69,7 +69,11 @@ class AddressCreateView(View):
             address_object = form.save(commit=False)
             address_object.created_by = request.user
             address_object.save()
-            self.redis_conn.enqueue(forward_geocode_call, address_object)
+            try:
+                self.redis_conn.enqueue(forward_geocode_call, address_object)
+            except redis_exceptions.ConnectionError as e:
+                # TODO loggy
+                pass
             return HttpResponseRedirect(reverse_lazy("address-detail", args=[address_object.pk]))
         return render(request, self.template_name, {"form": form})
 
@@ -105,8 +109,12 @@ class AddressDetailView(DetailView):
     def get_context_data(self, **kwargs):
         self.object = self.get_object()
         context = super(AddressDetailView, self).get_context_data(**kwargs)
-        if not self.object.static_map:
-            self.redis_conn.enqueue(get_static_map_image, self.object)
+        try:
+            if not self.object.static_map:
+                self.redis_conn.enqueue(get_static_map_image, self.object)
+        except redis_exceptions.ConnectionError as e:
+            # TODO loggy boy
+            pass
         _address_str = str(self.object.street + ",+" + self.object.city + "+" + self.object.state).replace(' ', '+')
         context['address_map_url'] = _address_str
         context['street_label'] = str(self.object.street).replace(" ", "+")
@@ -131,9 +139,9 @@ class ClientCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(ClientCreateView, self).get_context_data(**kwargs)
         if self.request.POST and self.request.form:
-            context['addresses'] = AddressFormSet(self.request.POST)
+            context['addresses'] = AddressFormSet(self.request.POST, prefix='address')
         else:
-            context['addresses'] = AddressFormSet()
+            context['addresses'] = AddressFormSet(prefix='address')
         return context
 
     def form_valid(self, form):
@@ -143,33 +151,48 @@ class ClientCreateView(CreateView):
             self.object = form.save(commit=False)
             self.object.created_by = self.request.user
             self.object = form.save()
+
             if addresses.is_valid():
                 for address in addresses:
                     new_addr = address.save(commit=False)
                     new_addr.client = self.object
                     address.save()
-                    self.queue.enqueue(forward_geocode_call, address)
+
+                    try:
+                        self.queue.enqueue(forward_geocode_call, address)
+                    except redis_exceptions.ConnectionError as e:
+                        # TODO logger here
+                        pass
+
         return super(ClientCreateView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        address_formset = AddressFormSet(request.POST or None, instance=form.instance)
+        address_formset = AddressFormSet(request.POST or None, instance=form.instance, prefix='address')
+
         if form.is_valid() and address_formset.is_valid():
             client_object = form.save(commit=False)
             client_object.created_by = request.user
             client_object.save()
+
             # Iterate through the submitted addresses in the formset
             for address in address_formset:
                 # Create the address object and set the client as the property owner
                 new_addr = address.save(commit=False)
                 new_addr.client = client_object
                 new_addr.save()
+
                 # After saving the address, enqueue an API call to get the coordinates of the address
                 # The worker that gets called will update the DB with the latitude and longitude
                 # asynchronously
-                self.queue.enqueue(forward_geocode_call, new_addr)
+                try:
+                    self.queue.enqueue(forward_geocode_call, new_addr)
+                except redis_exceptions.ConnectionError as e:
+                    # TODO logger here
+                    pass
+
             return HttpResponseRedirect(reverse_lazy("client-detail", args=[client_object.pk]))
-        return render(request, self.template_name, {"form": form})
+        return render(request, self.template_name, {"form": form, "addresses": address_formset})
 
 
 @method_decorator(login_required, name="dispatch")
@@ -203,11 +226,17 @@ class ClientDetailView(DetailView):
     def get_context_data(self, **kwargs):
         self.object = self.get_object()
         context = super(ClientDetailView, self).get_context_data(**kwargs)
+
         for address in self.object.addresses.all():
-            if not address.static_map:
-                self.queue.enqueue(get_static_map_image, address)
-            if are_nav_values_loaded(address) != TRUE_FLAG:
-                self.queue.enqueue(get_navigation_info, address)
+            try:
+                if not address.static_map:
+                    self.queue.enqueue(get_static_map_image, address)
+                if are_nav_values_loaded(address) != TRUE_FLAG:
+                    self.queue.enqueue(get_navigation_info, address)
+            except redis_exceptions.ConnectionError as e:
+                # TODO logger here
+                pass
+
         return context
 
 

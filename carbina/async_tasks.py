@@ -55,7 +55,7 @@ def forward_geocode_call(address):
             address.save()
         else:
             address.save()
-    except HTTPError as error:
+    except HTTPError or ConnectionError as error:
         logger.exception("Error receiving geocoding API response")
 
     return address
@@ -63,11 +63,19 @@ def forward_geocode_call(address):
 
 @job('default', timeout=3600)
 def get_static_map_image(address):
+    import hashlib
+
+    if address.__str__ is not None:
+        hash_object = hashlib.md5(str(address.__str__()).encode('utf-8'))
+    else:
+        return -1
+
     if address.latitude is None or address.longitude is None:
         return ERROR_FLAG
 
     latitude = str(address.latitude)
     longitude = str(address.longitude)
+
 
     image_url = MAPBOX_SMAP_URL + latitude + "," + longitude + ",12,0/500x500@2x?access_token=" + MAPBOX_KEY
     try:
@@ -82,9 +90,9 @@ def get_static_map_image(address):
                 break
             temp_image.write(block)
 
-        filename = str(address.pk) + "_" + latitude + "_" + longitude + ".png"
+        filename = hash_object.hexdigest() + ".png"
         address.static_map.save(filename, files.File(temp_image))
-    except HTTPError as error:
+    except HTTPError or ConnectionError as error:
         logger.warning("HTTPError occurred while getting static map image")
 
     return address
@@ -128,6 +136,6 @@ def get_navigation_info(address):
 
         address.save()
         logger.debug("Updated Address with navigation information")
-    except HTTPError as error:
+    except HTTPError or ConnectionError as error:
         logger.error("HTTP error occurred while fetching navigation info for Address")
     return address

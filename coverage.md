@@ -1,9 +1,9 @@
 | File | Statements | Missing | Coverage |
 |-------|------------|---------|----------|
 | `carbina/__init__.py` | 0 | 0 | 100% |
-| `carbina/admin.py` | 13 | 0 | 100% |
+| `carbina/admin.py` | 11 | 0 | 100% |
 | `carbina/apps.py` | 8 | 0 | 100% |
-| `carbina/async_tasks.py` | 93 | 15 | 84% |
+| `carbina/async_tasks.py` | 97 | 54 | 44% |
 | `carbina/forms.py` | 96 | 36 | 62% |
 | `carbina/migrations/0001_initial.py` | 9 | 0 | 100% |
 | `carbina/migrations/0002_auto_20201231_1902.py` | 5 | 0 | 100% |
@@ -14,7 +14,7 @@
 | `carbina/tests/test_models.py` | 67 | 0 | 100% |
 | `carbina/urls.py` | 3 | 0 | 100% |
 | `carbina/utils.py` | 11 | 2 | 82% |
-| `carbina/views.py` | 161 | 55 | 66% |
+| `carbina/views.py` | 176 | 69 | 61% |
 | `dashboard/__init__.py` | 0 | 0 | 100% |
 | `dashboard/migrations/__init__.py` | 0 | 0 | 100% |
 | `dashboard/tests.py` | 1 | 0 | 100% |
@@ -23,11 +23,11 @@
 | `employee_auth/__init__.py` | 0 | 0 | 100% |
 | `employee_auth/admin.py` | 48 | 13 | 73% |
 | `employee_auth/apps.py` | 4 | 0 | 100% |
-| `employee_auth/forms.py` | 31 | 3 | 90% |
+| `employee_auth/forms.py` | 29 | 3 | 90% |
 | `employee_auth/migrations/0001_initial.py` | 9 | 0 | 100% |
 | `employee_auth/migrations/0002_auto_20201230_2023.py` | 4 | 0 | 100% |
 | `employee_auth/migrations/__init__.py` | 0 | 0 | 100% |
-| `employee_auth/models.py` | 78 | 5 | 94% |
+| `employee_auth/models.py` | 78 | 0 | 100% |
 | `employee_auth/tests.py` | 34 | 0 | 100% |
 | `employee_auth/urls.py` | 3 | 0 | 100% |
 | `employee_auth/views.py` | 135 | 56 | 59% |
@@ -36,15 +36,15 @@
 | `manager/core.py` | 11 | 2 | 82% |
 | `manager/settings.py` | 29 | 0 | 100% |
 | `manager/urls.py` | 8 | 0 | 100% |
-| `carbina/tests/test_views.py` | 119 | 1 | 99% |
-| `carbina/tests/test_async_tasks.py` | 57 | 0 | 100% |
+| `carbina/tests/test_views.py` | 117 | 2 | 98% |
+| `carbina/tests/test_async_tasks.py` | 20 | 0 | 100% |
 | `carbina/tests/test_utils.py` | 3 | 0 | 100% |
 | `employee_auth/migrations/0003_auto_20210102_2348.py` | 4 | 0 | 100% |
 | `employee_auth/tests/__init__.py` | 0 | 0 | 100% |
-| `employee_auth/tests/test_models.py` | 111 | 0 | 100% |
+| `employee_auth/tests/test_models.py` | 171 | 0 | 100% |
 | `employee_auth/migrations/0004_remove_user_company_email_password.py` | 4 | 0 | 100% |
 | `employee_auth/tests/test_views.py` | 100 | 0 | 100% |
-| **Total** | **1409** | **203** | **86%** |
+| **Total** | **1445** | **252** | **83%** |
 
 
-<small>Generated at 2021-01-04 22:44:14.661536</small>
+<small>Generated at 2021-01-10 15:08:02.623467</small>

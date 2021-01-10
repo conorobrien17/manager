@@ -1,7 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import User, Department
-from phone_field import phone_number
 
 _base_fields = ("first_name", "last_name", "personal_email", "company_email", "phone")
 

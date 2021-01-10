@@ -11,18 +11,19 @@ from django.utils import timezone
 class UserManager(BaseUserManager, PermissionManager):
     """ Create a new user account """
 
-    def create_user(self, username, personal_email, company_email, phone, job_title, first_name, last_name, password=None, commit=True):
+    def create_user(self, username, personal_email, company_email, phone, job_title, first_name, last_name, password, commit=True):
         if not username or len(username.strip()) < 1:
             raise ValueError('Username is required')
-        if not personal_email:
+        if not personal_email or len(personal_email.strip()) < 1:
             raise ValueError('Personal email address is required')
-        if not company_email:
+        if not company_email or len(company_email.strip()) < 1:
             raise ValueError('Company email address is required')
-        if not first_name or not last_name:
+        if not first_name or not last_name or len(first_name.strip()) < 1 or len(last_name.strip()) < 1:
             raise ValueError('The user\'s full name (first and last) is required')
-        if not phone:
+        if not phone or len(phone.strip()) < 1:
             raise ValueError('User\'s phone number must be entered')
 
+        # Create the user object without the password field
         user = User.objects.create(
             username=username,
             personal_email=self.normalize_email(personal_email),
@@ -34,12 +35,15 @@ class UserManager(BaseUserManager, PermissionManager):
             job_title=job_title,
         )
 
+        # Use django's set_password method to set the user account's pass
         user.set_password(password)
+
         if commit:
             user.save(using=self._db)
 
         return user
 
+    # Allows for superusers to be created with the same
     def create_superuser(self, username, personal_email, company_email, phone, job_title, first_name,
                          last_name, password):
         user = self.create_user(username, personal_email, company_email, phone, job_title, first_name,

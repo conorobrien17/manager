@@ -19,6 +19,7 @@ class UserModelTests(TestCase):
             username=temp.get("username"),
             first_name=temp.get("first_name"),
             last_name=temp.get("last_name"),
+            password='LavaLakeLarry123$',
             personal_email=temp.get("personal_email"),
             company_email=temp.get("company_email"),
             phone=temp.get("phone"),
@@ -86,6 +87,7 @@ class DepartmentModelTests(TestCase):
             username=temp.get('username'),
             first_name=temp.get('first_name'),
             last_name=temp.get('last_name'),
+            password='LavaLakeLarry123$',
             personal_email=temp.get('personal_email'),
             company_email=temp.get('company_email'),
             phone=temp.get('phone'),
@@ -119,6 +121,11 @@ class DepartmentModelTests(TestCase):
     def test_absolute_url(self):
         self.assertEqual(self.dept.get_absolute_url(), '/accounts/departments/1/detail')
 
+    def test_department_repr(self):
+        dummy_depts[0].__setitem__('manager', 'conor')
+        dummy_depts[0].__setitem__('manager_id', '1')
+        self.assertEqual(self.dept.__repr__(), dummy_depts[0])
+
 
 class UserManagerTests(TestCase):
     user_manager: UserManager
@@ -146,7 +153,8 @@ class UserManagerTests(TestCase):
             phone=self._phone,
             job_title=self._job_title,
             first_name=self._first_name,
-            last_name=self._last_name
+            last_name=self._last_name,
+            password='LavaLakeLarry123$',
         )
         self.assertEqual(created_user.__str__(), self._username)
 
@@ -160,7 +168,8 @@ class UserManagerTests(TestCase):
                 phone=self._phone,
                 job_title=self._job_title,
                 first_name=self._first_name,
-                last_name=self._last_name
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
             )
 
         the_exception = cm.exception
@@ -177,12 +186,157 @@ class UserManagerTests(TestCase):
                 phone=self._phone,
                 job_title=self._job_title,
                 first_name=self._first_name,
-                last_name=self._last_name
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
             )
 
         the_exception = cm.exception
         self.assertEqual(the_exception.__class__, ValueError)
         self.assertEqual(str(the_exception), 'Username is required')
+
+    def test_create_user_personal_email_none(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=None,
+                company_email=self._company_email,
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'Personal email address is required')
+
+    def test_create_user_personal_email_empty(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=' ',
+                company_email=self._company_email,
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'Personal email address is required')
+
+    def test_create_user_work_email_none(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=None,
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'Company email address is required')
+
+    def test_create_user_work_email_empty(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=' ',
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'Company email address is required')
+
+    def test_create_user_first_name_none(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=self._company_email,
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=None,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'The user\'s full name (first and last) is required')
+
+    def test_create_user_first_name_empty(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=self._company_email,
+                phone=self._phone,
+                job_title=self._job_title,
+                first_name=' ',
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'The user\'s full name (first and last) is required')
+
+    def test_create_user_phone_none(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=self._company_email,
+                phone=None,
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'User\'s phone number must be entered')
+
+    def test_create_user_phone_empty(self):
+        user_manager = UserManager()
+        with self.assertRaises(ValueError) as cm:
+            user_manager.create_user(
+                username=self._username,
+                personal_email=self._personal_email,
+                company_email=self._company_email,
+                phone=' ',
+                job_title=self._job_title,
+                first_name=self._first_name,
+                last_name=self._last_name,
+                password='LavaLakeLarry123$',
+            )
+
+        the_exception = cm.exception
+        self.assertEqual(the_exception.__class__, ValueError)
+        self.assertEqual(str(the_exception), 'User\'s phone number must be entered')
 
     def test_create_super_user(self):
         user_manager = UserManager()
