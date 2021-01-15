@@ -4,6 +4,7 @@
 
 {% block page_content %}
 <main role="main" class="container p-5 mt-5">
+    <a class="btn btn-link" href="{% url 'clients' %}">Back</a>
     <p class="h1">{{ client.first_name }} {{ client.last_name }}</p>
     <div class="container">
         <div class="row">
@@ -33,18 +34,26 @@
     <p class="h1">Properties:</p>
     {% for address in client.addresses.all %}
         <div class="card" style="width: 18rem;">
-            {% if address.static_map %}
-            <img src="{{ address.static_map.url }}" class="card-img-top" alt="...">
+            {% if not address.static_map %}
+                <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading map...</p>
             {% else %}
-            Loading map...
+                <img src="{{ address.static_map.url }}" class="card-img-top" alt="...">
             {% endif %}
             <div class="card-body">
-                <h5 class="card-title">{{ address.street }}&nbsp; <span class="badge bg-info text-dark">{{ address.distance_shop | floatformat:2 }} mi.</span></h5>
+                <h5 class="card-title">{{ address.street }}&nbsp;
+                    <span class="badge bg-info text-dark">
+                        {% if address.distance_shop %}
+                        {{ address.distance_shop | floatformat:2 }} mi.
+                        {% else %}
+                        Loading
+                        {% endif %}
+                    </span>
+                </h5>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">{{ address.street }}<br>{{ address.city }}, {{ address.state }} {{ address.zip_code }}</li>
                 <li class="list-group-item"><strong>Route: </strong>{{ address.driving_summary }}<br>
-                    <strong>Drive Time:</strong> {{ address.duration_shop | floatformat:0 }} minutes</li>
+                    <strong>Drive Time:</strong> {% if address.duration_shop %}{{ address.duration_shop | floatformat:0 }} minutes {% else %} Loading{% endif %}</li>
             </ul>
             <div class="card-body">
                 <div class="btn-group" role="group" aria-label="GPS Links">

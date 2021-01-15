@@ -5,6 +5,64 @@
 {% block page_content %}
 <main role="main" class="container p-5 mt-5">
     <h2 class="h2">Client List</h2>
+    <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#searchFields" role="button" aria-expanded="false" aria-controls="searchFields" id="searchButton">Search
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+    </a>
+{{ filter.qs.data }}
+    {% if filter.qs.data.count %}
+        <br><br>
+        {{ filter.qs.data }}
+        <p>{{ filter.qs.count }} matches found
+        {% if filter.qs.data.first_name %}
+            for first name '{{ filter.qs.data.first_name }}'
+        {% endif %}
+        </p>
+        <a class="text-danger" href="{% url 'clients' %}">Clear Filters</a>
+    {% endif %}
+    <div class="row">
+        <div class="col">
+            <div class="collapse multi-collapse" id="searchFields">
+                <div class="card card-body">
+                    <form class="row g-3">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        {{ form.source.errors }}
+                        {{ form.source }}
+                        <div class="col-md-6">
+                            <label for="id_first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" name="first_name" id="id_first_name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" name="last_name" id="id_last_name">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_cell_phone" class="form-label">Cell Phone</label>
+                            <input type="tel" class="form-control" name="cell_phone" id="id_cell_phone">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_email_address" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email_address" id="id_email_address">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="town" class="form-label">Town</label>
+                            <input type="text" class="form-control" id="town">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="zipcode" class="form-label">Zip</label>
+                            <input type="number" class="form-control" id="zipcode" maxlength="5">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -16,16 +74,26 @@
             </tr>
         </thead>
         <tbody>
-            {% for client in clients %}
-            <tr>
-                <td><a href="{{ client.get_absolute_url }}">{{ client.first_name }}</a></td>
+            {% for client in filter.qs %}
+            <tr class="action-row" data-href="{% url 'client-detail' pk=client.pk %}">
+                <td>{{ client.first_name }}</td>
                 <td>{{ client.last_name }}</td>
-                <td>{{ client.cell_phone }}</td>
-                <td>{{ client.email_address }}</td>
+                <td><a href="tel:{{ client.cell_phone }}">{{ client.cell_phone }}</a></td>
+                <td><a href="mailto:{{ client.email_address }}">{{ client.email_address }}</a></td>
                 <td>{{ client.addresses.first.city }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+jQuery(document).ready(function($) {
+    $(".action-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
 {% endblock %}
