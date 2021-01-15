@@ -13,6 +13,8 @@ from .models import Address, Client
 from .apps import APP_TEMPLATE_FOLDER, OK_FLAG, FALSE_FLAG, TRUE_FLAG
 from .async_tasks import forward_geocode_call, get_static_map_image, get_navigation_info
 from .utils import are_nav_values_loaded
+from django_filters.views import FilterView
+from .filters import ClientFilter, AddressFilter
 
 _address_template_path = APP_TEMPLATE_FOLDER + "address/"
 _client_template_path = APP_TEMPLATE_FOLDER + "client/"
@@ -203,11 +205,16 @@ class ClientEditView(UpdateView):
 
 
 @method_decorator(login_required, name="dispatch")
-class ClientListView(ListView):
+class ClientListView(FilterView):
     model = Client
     template_name = _client_template_path + "list.html"
     context_object_name = 'clients'
     paginate_by = CLIENT_PAGINATE_BY
+
+    def get_queryset(self):
+        qs = self.model.objects.all()
+        filtered_clients = ClientFilter(self.request.GET, queryset=qs)
+        return filtered_clients.qs
 
 
 @method_decorator(login_required, name="dispatch")

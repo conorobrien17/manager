@@ -65,10 +65,10 @@ def forward_geocode_call(address):
 def get_static_map_image(address):
     import hashlib
 
-    if address.__str__ is not None:
+    if address.static_map is None:
         hash_object = hashlib.md5(str(address.__str__()).encode('utf-8'))
     else:
-        return -1
+        return address
 
     if address.latitude is None or address.longitude is None:
         return ERROR_FLAG

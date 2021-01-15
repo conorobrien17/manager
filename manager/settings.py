@@ -59,8 +59,8 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'manager.urls'
 
 AUTH_USER_MODEL = 'employee_auth.User'
-LOGIN_REDIRECT_URL = 'login'
-LOGOUT_REDIRECT_URL = 'logout'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'login'
 
 TEMPLATES = [
     {

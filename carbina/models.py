@@ -23,6 +23,7 @@ class QuoteItem(Service):
     price = models.FloatField(null=True, validators=[MinValueValidator(0)], help_text="The quoted price of the service")
     author = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="quoted_services",
                                on_delete=models.SET_NULL)
+    quote = models.ForeignKey(null=False, to="Quote", related_name="quote_items", on_delete=models.CASCADE)
 
     class Meta:
         abstract = False
@@ -118,12 +119,13 @@ class Client(models.Model):
 
 class Quote(models.Model):
     title = models.CharField(blank=False, max_length=64, help_text="A brief descriptive title of the job")
-    salesman = models.ForeignKey(blank=True, null=True, to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL)
+    salesman = models.ForeignKey(blank=True, null=True, to=settings.AUTH_USER_MODEL, related_name='sales_quotes', on_delete=models.SET_NULL)
     scheduled_time = models.DateTimeField(auto_now=False, help_text="The time and date scheduled for the quote")
     office_notes = models.TextField(help_text="Office and administrative notes about the quote")
     quote_notes = models.TextField(help_text="Notes for the quote and potential job itself")
     client = models.ForeignKey(null=True, to="Client", related_name="quotes", on_delete=models.SET_NULL)
     address = models.ForeignKey(null=True, to='Address', related_name='quotes', on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name='created_quotes', on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["-scheduled_time", "title"]

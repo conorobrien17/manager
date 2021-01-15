@@ -36,6 +36,8 @@ class UserListView(ListView):
     model = User
     context_object_name = "users"
     template_name = _atf + "employees/list.html"
+
+    '''
     paginate_by = USER_PAGINATE_BY
 
     def get_queryset(self):
@@ -46,6 +48,7 @@ class UserListView(ListView):
         users = User.objects.all()
         context["users"] = paginate_list(self, users)
         return context
+    '''
 
 
 @method_decorator(edit_decorators, name="dispatch")
