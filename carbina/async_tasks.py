@@ -37,7 +37,6 @@ def map_box_json_call(request_url):
 def forward_geocode_call(address):
     # See documentation for the call made here: https://docs.mapbox.com/api/search/geocoding/#forward-geocoding
     try:
-        # TODO cleanup the way this gets called and store the image in the model to avoid API calls/more dns requests
         requestURL = MAPBOX_GEOCODE_URL + address.street + " " + address.city + " " + address.state + " " + str(address.zip_code) + ".json?access_token=" + MAPBOX_KEY
         json = map_box_json_call(requestURL)
         coordinates = json.get('features')[0].get('center')
