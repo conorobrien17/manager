@@ -1,25 +1,22 @@
 import logging
 from django_rq import job
 from django.core import files
+from manager.core import SHOP_LAT, SHOP_LONG, METERS_TO_MILES
 import requests
 from tempfile import NamedTemporaryFile
 from requests.exceptions import HTTPError
 from carbina.models import Address
 from carbina.apps import ERROR_FLAG
+from _keys.api_keys import MAPBOX_KEY
 
-MAPBOX_KEY = 'pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw'
+logger = logging.getLogger('file')
+
 MAPBOX_GEOCODE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
 MAPBOX_SMAP_URL = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/'
 MAPBOX_DRIVING_URL = 'https://api.mapbox.com/directions/v5/mapbox/driving/'
-logger = logging.getLogger('file')
-
-SHOP_LAT = '-75.375504'
-SHOP_LONG = '40.159940'
 
 LATITUDE_INDEX = 0
 LONGITUDE_INDEX = 1
-
-METERS_TO_MILES = 1609.344
 
 
 # TODO watch out for HTTP 429 Too Many Requests from Mapbox when usage exceeds limit of requests/min
@@ -47,15 +44,15 @@ def forward_geocode_call(address):
         latitude = coordinates[LATITUDE_INDEX]
         longitude = coordinates[LONGITUDE_INDEX]
 
-        address = Address.objects.get(pk=address.pk)
         if latitude and longitude:
             address.latitude = latitude
             address.longitude = longitude
             address.save()
         else:
+            logger.warning("Coordinates could not be loaded from API call")
             address.save()
     except HTTPError or ConnectionError as error:
-        logger.exception("Error receiving geocoding API response")
+        logger.exception("Error receiving geocoding API response", error)
 
     return address
 
@@ -65,16 +62,18 @@ def get_static_map_image(address):
     import hashlib
 
     if address.static_map is None:
+        # Hash the address object as a string for the filename
         hash_object = hashlib.md5(str(address.__str__()).encode('utf-8'))
     else:
         return address
 
+    # Return an error status if the latitude and longitude are not
+    # set for the address object passed in
     if address.latitude is None or address.longitude is None:
         return ERROR_FLAG
 
     latitude = str(address.latitude)
     longitude = str(address.longitude)
-
 
     image_url = MAPBOX_SMAP_URL + latitude + "," + longitude + ",12,0/500x500@2x?access_token=" + MAPBOX_KEY
     try:

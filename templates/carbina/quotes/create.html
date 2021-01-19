@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Create Quote{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<main role="main" class="container p-5 mt-5">
+    <h2>Create Quote</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {{ form.source.errors }}
+        {{ form.source }}
+        <div class="container">
+            <div class="row">
+                <div class="form-floating col-md-6">
+                    {{ form.title.errors }}
+                    <input type="text" class="form-control col-form-label-lg" name="{{ form.title.name }}" maxlength="64" required="" id="{{ form.title.id_for_label }}" placeholder="name">
+                    <label class="col-form-label-lg" for="{{ form.title.id_for_label }}">{{ form.title.label_tag }}</label>
+                </div>
+                <div class="form-floating col-md-6">
+                    {{ form.salesman }}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="form-floating col-md-6">
+                    {{ form.scheduled_time.errors }}
+                    <input type="datetime-local" class="form-control" name="{{ form.scheduled_time.name }}" maxlength="12" required="" id="{{ form.scheduled_time.id_for_label }}" placeholder="scheduled_time">
+                    <label class="col-form-label-lg" for="{{ form.scheduled_time.id_for_label }}">{{ form.scheduled_time.label_tag }}</label>
+                </div>
+                <div class="form-floating col-md-6">
+                    {{ form.quote_notes.errors }}
+                    <input type="text" class="form-control" name="{{ form.quote_notes.name }}" maxlength="64" required="" id="{{ form.quote_notes.id_for_label }}" placeholder="name">
+                    <label class="col-form-label-lg" for="{{ form.quote_notes.id_for_label }}">{{ form.quote_notes.label_tag }}</label>
+                </div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="medium-6 cell">
+                    <label for="id_office_notes">{{ form.office_notes.label_tag }}</label>
+                    {{ form.office_notes.errors }}
+                </div>
+                <div class="medium-6 cell">
+                    {{ form.office_notes }}
+                </div>
+            </div>
+        </div>
+        <fieldset>
+        <div class="grid-container">
+                {{ quote_items.management_form }}
+                <div id="formset_wrapper">
+                {% for form in quote_items.forms %}
+                    <div class="quote_item_formset">
+                        <div class="col-md-6" id="quote_item_wrapper">
+                            <hr>
+                            <div class="row col-md-12 form-floating">
+                                {{ form.title.errors }}
+                                <input type="text" class="form-control col-form-label-lg" name="{{ form.title.name }}" maxlength="64" required="" id="{{ form.title.id_for_label }}" placeholder="name">
+                                <label class="col-form-label-lg" for="{{ form.title.id_for_label }}">{{ form.title.label_tag }}</label>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        {{ form.price.errors }}
+                                        <span class="input-group-text">$</span>
+                                        <input type="text" class="form-control" name="{{ form.price.name }}" maxlength="9" required="" id="{{ form.price.id_for_label }}" placeholder="Price">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.quantity.id }}">{{ form.quantity.label_tag }}</label>
+                                    {{ form.quantity.errors }}
+                                    {{ form.quantity }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="{{ form.description.id }}">{{ form.description.label_tag }}</label>
+                                    {{ form.description.errors }}
+                                    {{ form.description }}
+                                </div>
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-success add-form-row">+</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+        <button type="submit" class="success button float-center">Create</button>
+    </form>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script type='text/javascript'>
+function updateElementIndex(el, prefix, ndx) {
+    var id_regex = new RegExp('(' + prefix + '-\\d+)');
+    var replacement = prefix + '-' + ndx;
+    if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+    if (el.id) el.id = el.id.replace(id_regex, replacement);
+    if (el.name) el.name = el.name.replace(id_regex, replacement);
+}
+function cloneMore(selector, prefix) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+    newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function() {
+        var title = $(this).attr('title').replace('-' + (total-1) + '-', '-' + total + '-');
+        var id = 'id_' + title;
+        $(this).attr({'title': title, 'id': id}).val('').removeAttr('checked');
+    });
+    newElement.find('label').each(function() {
+        var forValue = $(this).attr('for');
+        if (forValue) {
+          forValue = forValue.replace('-' + (total-1) + '-', '-' + total + '-');
+          $(this).attr({'for': forValue});
+        }
+    });
+    total++;
+    $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement);
+    var conditionRow = $('.quote_item_wrapper:not(:last)');
+    conditionRow.find('.btn.add-form-row')
+    .removeClass('btn-success').addClass('btn-danger')
+    .removeClass('add-form-row').addClass('remove-form-row')
+    .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+    return false;
+}
+function deleteForm(prefix, btn) {
+    var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    if (total > 1){
+        btn.closest('#quote_item_wrapper').remove();
+        var forms = $('#formset_wrapper');
+        $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+        for (var i=0, formCount=forms.length; i<formCount; i++) {
+            $(forms.get(i)).find(':input').each(function() {
+                updateElementIndex(this, prefix, i);
+            });
+        }
+    }
+    return false;
+}
+$(document).on('click', '.add-form-row', function(e){
+    e.preventDefault();
+    cloneMore('#quote_item_wrapper:last', 'quote_item');
+    return false;
+});
+$(document).on('click', '.remove-form-row', function(e){
+    e.preventDefault();
+    deleteForm('form', $(this));
+    return false;
+});
+</script>
+{% endblock %}

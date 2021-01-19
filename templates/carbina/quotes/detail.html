@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Address Info: {{ address.street }}{% endblock %}
+{% load static %}
+
+{% block page_content %}
+<main role="main" class="container p-5 mt-5">
+    <a class="btn btn-link" href="{% url 'clients' %}">Back</a>
+    <p class="h1">{{ client.first_name }} {{ client.last_name }}</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="mailto:{{ client.email_address }}">{{ client.email_address }}</a></p>
+                <p class="fs-5">Email</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="tel:{{ client.home_phone }}">{{ client.home_phone }}</a></p>
+                <p class="fs-5">Home Phone</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-2"><a href="tel:{{ client.cell_phone }}">{{ client.cell_phone }}</a></p>
+                <p class="fs-5">Cell Phone</p>
+            </div>
+        </div>
+    </div>
+    <br>
+
+        <!-- https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
+    -->
+
+    <p class="h1">Properties:</p>
+    {% for address in client.addresses.all %}
+        <div class="card" style="width: 18rem;">
+            {% if not address.static_map %}
+                <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading map...</p>
+            {% else %}
+                <img src="{{ address.static_map.url }}" class="card-img-top" alt="...">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ address.street }}&nbsp;
+                    <span class="badge bg-info text-dark">
+                        {% if address.distance_shop %}
+                        {{ address.distance_shop | floatformat:2 }} mi.
+                        {% else %}
+                        Loading
+                        {% endif %}
+                    </span>
+                </h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">{{ address.street }}<br>{{ address.city }}, {{ address.state }} {{ address.zip_code }}</li>
+                <li class="list-group-item"><strong>Route: </strong>{{ address.driving_summary }}<br>
+                    <strong>Drive Time:</strong> {% if address.duration_shop %}{{ address.duration_shop | floatformat:0 }} minutes {% else %} Loading{% endif %}</li>
+            </ul>
+            <div class="card-body">
+                <div class="btn-group" role="group" aria-label="GPS Links">
+                    <a class="btn btn-primary" href="https://www.google.com/maps/dir/2933+W+Germantown+Pike,+Eagleville,+PA+19403/{{ address.street }},+{{ address.city }},+{{ address.state }}+{{ address.zip_code }}/@{{ address.longitude }},{{ address.latitude }}" target="_blank" class="card-link">Google Maps</a>
+                    <a class="btn btn-primary" href="https://maps.apple.com/?daddr={{ address.street}}, {{ address.city }} {{ address.state }} {{ address.zip_code }}&dirflg=d&saddr=2933%20W%20Germantown%20Pike,%202933%20W%20Germantown%20Pike,%20Norristown,%20PA%20%2019403,%20United%20States" target="_blank" class="card-link">Apple Maps</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</main>
+{% endblock %}

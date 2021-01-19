@@ -141,4 +141,5 @@ class JobForm(forms.ModelForm):
 
 
 AddressFormSet = inlineformset_factory(Client, Address, fields=['street', 'city', 'state', 'zip_code'], can_delete=False, extra=1)
-QuoteFormSet = inlineformset_factory(Quote, QuoteItem, fields=['title', 'description', 'quantity', 'price'], can_delete=True, extra=3, max_num=32)
+QuoteItemFormSet = inlineformset_factory(Quote, QuoteItem, fields=['title', 'description', 'quantity', 'price'], can_delete=True, extra=1, max_num=32)
+_quote_item_formset_prefix = 'quote_item'

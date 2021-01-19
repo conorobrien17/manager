@@ -38,6 +38,9 @@ class HistoryLogUpdate(models.Model):
     title = models.CharField(blank=False, max_length=64, help_text="The primary text of the update")
     theme = models.CharField(blank=False, max_length=32, default="default", help_text="The theme to be used if any on the update")
     timestamp = models.DateTimeField(auto_now_add=True)
+    history_log = models.ForeignKey(null=True, to="HistoryLog", related_name="history_log_updates", on_delete=models.CASCADE)
+    author = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name="updated_history_logs",
+                               on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ["title"]
@@ -45,6 +48,17 @@ class HistoryLogUpdate(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class HistoryLog(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'HistoryLogs'
+
+
+class QuoteHistoryLog(HistoryLog):
+    quote = models.OneToOneField(null=False, to='Quote', related_name='history_log', on_delete=models.CASCADE)
 
 
 class JobPicture(models.Model):
@@ -107,6 +121,7 @@ class Client(models.Model):
         ordering = ["last_name", "first_name"]
         permissions = [
             ("can_view_contact_info", "Can view client\'s contact information"),
+            ("can_list_all_clients", "Can view a list of all clients"),
         ]
         verbose_name_plural = "Clients"
 
@@ -128,10 +143,12 @@ class Quote(models.Model):
     created_by = models.ForeignKey(null=True, to=settings.AUTH_USER_MODEL, related_name='created_quotes', on_delete=models.SET_NULL)
 
     class Meta:
+        get_latest_by = 'scheduled_time'
         ordering = ["-scheduled_time", "title"]
         permissions = [
             ("can_view_price", "Can view each item\'s estimated price"),
             ("can_edit_price", "Can edit each item\'s estimated price"),
+            ("can_view_all_quotes", "Can view any quote regardless of assignment"),
         ]
 
     def __str__(self):

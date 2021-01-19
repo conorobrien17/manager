@@ -18,6 +18,12 @@ urlpatterns = [
     path('clients/<int:pk>/detail', ClientDetailView.as_view(), name='client-detail'),
     path('clients/<int:pk>/edit', ClientEditView.as_view(), name='client-edit'),
     path('clients/<int:pk>/delete', ClientDeleteView.as_view(), name='client-delete'),
+
+    path('quotes/', QuoteListView.as_view(), name='quotes'),
+    path('quotes/list', QuoteListView.as_view(), name='quote-list'),
+    path('quotes/create', QuoteCreateView.as_view(), name='quote-create'),
+    path('quotes/<int:pk>/', QuoteDetailView.as_view(), name='quote-detail'),
+    path('quotes/<int:pk>/detail', QuoteDetailView.as_view(), name='quote-detail'),
 ]
 
 '''
