@@ -53,12 +53,13 @@ class EditUserForm(forms.ModelForm):
 class UserAdmin(BaseUserAdmin):
     form = EditUserForm
     add_form = AddUserForm
+    prepopulated_fields = {'slug': ('username',)}
 
     list_display = ("username", "first_name", "last_name", "department", "job_title")
     list_filter = ("is_staff",)
     readonly_fields = ["account_creation_dt"]
     fieldsets = (
-        ("Account", {"fields": ("username", "password")}),
+        ("Account", {"fields": ("username", "password", "slug")}),
         ("Personal", {"fields": ("first_name", "last_name", "personal_email", "phone")}),
         ("Employee Information", {"fields": ("company_email", "job_title", "department")}),
         ("Permissions", {"fields": ("groups", "user_permissions", "is_active", "is_staff")}),

@@ -25,7 +25,7 @@ _EXPECTED_DURATION = 15.735033333333332
 _EXPECTED_DISTANCE = 8.328991191441979
 _EXPECTED_SUMMARY = 'North Park Avenue, Valley Forge Road'
 
-'''
+
 class AsyncCalls(TestCase):
     t_client: TestClient
     client: Client
@@ -60,16 +60,16 @@ class AsyncCalls(TestCase):
         self.assertIsNotNone(address.static_map)
 
     def test_static_map_null_coord(self):
-        self.address.longitude = None
-        self.address.save()
-        address = tasks.get_static_map_image(self.address)
+        temp_address = self.address
+        temp_address.latitude = None
+        temp_address.static_map = None
+        address = tasks.get_static_map_image(temp_address)
         self.assertEqual(address, ERROR_FLAG)
 
     def test_nagivation_info(self):
         tmp = tasks.get_navigation_info(None)
         self.assertEqual(tmp, ERROR_FLAG)
         address = tasks.get_navigation_info(self.address)
-        self.assertEqual(address.duration_shop, 16.261666666666667)
-        self.assertEqual(address.distance_shop, 8.328991191441979)
+        self.assertEqual(address.duration_shop, 15.158566666666667)
+        self.assertEqual(address.distance_shop, 8.32899181281317)
         self.assertEqual(address.driving_summary, 'North Park Avenue, Valley Forge Road')
-'''

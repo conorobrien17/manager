@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Arena Tree Specialists</title>
+        <title>{% block title %}{% endblock %}</title>
         <meta name="author" content="CO">
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
@@ -57,7 +57,7 @@
                                 Welcome {{ request.user | title }}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'user-detail' pk=request.user.pk %}">My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'user-detail' _slug=request.user.slug %}">My Profile</a></li>
                                 <li><a class="dropdown-item" href="/carbina/clients/create">My Department</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#">Edit Account</a></li>

@@ -3,8 +3,8 @@
 {% load static %}
 
 {% block page_content %}
-<div class="m-6 container-lg">
-    <p class="h1">{{ user.first_name }} {{ user.last_name }}</p>
+<main role="main" class="container p-5 mt-5">
+    <h1 class="display-2">{{ user.id }}<br>{{ user.first_name }} {{ user.last_name }} <small class="text-smaller text-muted">#{{ user.pk }}</small></h1>
     <div class="col-12 float-left border p-4 lh-condensed-ultra">
         <p class="f2-light"><a href="mailto:{{ user.work_email }}">{{ user.work_email }}</a></p>
         <p class="f5">Work Email</p>
@@ -24,5 +24,5 @@
     <br>
         <!-- https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-77.0397,38.8974,11,0/500x500@2x?access_token=pk.eyJ1IjoiY29ub3JvYnJpZW4iLCJhIjoiY2tnbDVhOThhMTc4cDJybnM5dHU3bjlvOCJ9.rApCMl8Y1fh3Iom20QnYKw
     -->
-</div>
+</main>
 {% endblock %}

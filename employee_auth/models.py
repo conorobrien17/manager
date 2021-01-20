@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.conf import settings
 from django.contrib.auth.hashers import is_password_usable, make_password, check_password
 from django.urls import reverse
+from django.utils.text import slugify
 from phone_field import PhoneField
 import logging
 from django.utils import timezone
@@ -20,7 +21,7 @@ class UserManager(BaseUserManager, PermissionManager):
             raise ValueError('Company email address is required')
         if not first_name or not last_name or len(first_name.strip()) < 1 or len(last_name.strip()) < 1:
             raise ValueError('The user\'s full name (first and last) is required')
-        if not phone or len(phone.strip()) < 1:
+        if not phone or len(str(phone).strip()) < 1:
             raise ValueError('User\'s phone number must be entered')
 
         # Create the user object without the password field
@@ -56,6 +57,7 @@ class UserManager(BaseUserManager, PermissionManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=32, unique=True)
+    slug = models.SlugField(unique=True)
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=64)
     personal_email = models.EmailField(max_length=128, unique=True)
@@ -110,7 +112,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def get_absolute_url(self):
-        return reverse('user-detail', args=[str(self.pk)])
+        return reverse('user-detail', args=[self.slug])
 
     def ping_login(self, login_time=timezone.now()):
         logging.info("[LOGIN] " + self.full_name + " logged in successfully")
@@ -123,6 +125,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.first_name.title()
+
+    def save(self, *args, **kwargs):
+        self.slug = self.slug or slugify(self.username)
+        super().save(*args, **kwargs)
 
 
 class Department(models.Model):

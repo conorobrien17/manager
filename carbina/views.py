@@ -71,7 +71,9 @@ class AddressCreateView(View):
             address_object = form.save(commit=False)
             address_object.created_by = request.user
             address_object.save()
+
             try:
+                # Put a worker in the RQ to fetch the latitude and longitude of the address
                 self.redis_conn.enqueue(forward_geocode_call, address_object)
             except redis_exceptions.ConnectionError as e:
                 # TODO loggy
@@ -236,6 +238,8 @@ class ClientDetailView(DetailView):
 
         for address in self.object.addresses.all():
             try:
+                # Queue workers to get this address object's static map
+                # and navigation information since it has not been loaded yet
                 if not address.static_map:
                     self.queue.enqueue(get_static_map_image, address)
                 if are_nav_values_loaded(address) != TRUE_FLAG:

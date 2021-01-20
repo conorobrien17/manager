@@ -54,8 +54,10 @@ class UserListView(ListView):
 @method_decorator(edit_decorators, name="dispatch")
 class UserDetailView(DetailView):
     model = User
-    context_object_name = "profile"
-    template_name = _atf + "employees/detail.html"
+    context_object_name = 'profile'
+    template_name = _atf + 'employees/detail.html'
+    slug_url_kwarg = '_slug'
+    slug_field = 'slug'
 
 
 @method_decorator(edit_decorators, name="dispatch")
@@ -66,7 +68,7 @@ class UserEditView(UpdateView):
     form_class = BaseUserEditForm
 
     def get_object(self, queryset=User.objects):
-        return queryset.get(pk=self.kwargs.get("pk"))
+        return queryset.get(slug=self.kwargs.get("_slug"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,24 +79,24 @@ class UserEditView(UpdateView):
     def get_form(self, form_class=None):
         if self.request.user.has_perm("employee_auth.edit_all_users"):
             return AdminUserEditFormMixin(instance=self.get_object())
-        elif can_edit_user(self.request, self.kwargs.get("pk")):
+        elif can_edit_user(self.request, self.kwargs.get("_slug")):
             return BaseUserEditForm(instance=self.get_object())
         return None
 
     def get_success_url(self):
-        pk = self.kwargs.get("pk", )
-        if self.kwargs.get("pk", ):
-            return reverse_lazy("user-detail", args=[pk])
+        _slug = self.u.get("_slug")
+        if self.kwargs.get("_slug"):
+            return reverse_lazy("user-detail", args=[_slug])
         else:
-            return reverse_lazy("user-list", args=[pk])
+            return reverse_lazy("user-list")
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.form_class(request.POST)
-        pk = self.kwargs.get("pk")
+        _slug = self.kwargs.get("_slug")
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse_lazy("user-detail", args=[pk]))
+            return HttpResponseRedirect(reverse_lazy("user-detail", args=[_slug]))
         return render(request, self.template_name, {"form": form})
 
 
@@ -161,17 +163,3 @@ class DepartmentDetailView(DetailView):
     model = Department
     context_object_name = "department"
     template_name = _dtf + "detail.html"
-
-    def get_object(self, queryset=Department.objects):
-        return queryset.get(pk=self.kwargs.get("pk", ))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        pk = int(self.kwargs.get("pk", ))
-        context["members"] = User.objects.filter(department=pk)
-        return context
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = super().get_context_data(**kwargs)
-        return render(request, self.template_name, context)

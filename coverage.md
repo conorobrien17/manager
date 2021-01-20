@@ -3,23 +3,23 @@
 | `carbina/__init__.py` | 0 | 0 | 100% |
 | `carbina/admin.py` | 11 | 0 | 100% |
 | `carbina/apps.py` | 8 | 0 | 100% |
-| `carbina/async_tasks.py` | 97 | 54 | 44% |
-| `carbina/forms.py` | 96 | 36 | 62% |
+| `carbina/async_tasks.py` | 95 | 32 | 66% |
+| `carbina/forms.py` | 98 | 36 | 63% |
 | `carbina/migrations/0001_initial.py` | 9 | 0 | 100% |
 | `carbina/migrations/0002_auto_20201231_1902.py` | 5 | 0 | 100% |
 | `carbina/migrations/0003_auto_20210101_1823.py` | 7 | 0 | 100% |
 | `carbina/migrations/__init__.py` | 0 | 0 | 100% |
-| `carbina/models.py` | 114 | 9 | 92% |
+| `carbina/models.py` | 125 | 10 | 92% |
 | `carbina/tests/__init__.py` | 0 | 0 | 100% |
 | `carbina/tests/test_models.py` | 67 | 0 | 100% |
-| `carbina/urls.py` | 3 | 0 | 100% |
+| `carbina/urls.py` | 5 | 0 | 100% |
 | `carbina/utils.py` | 11 | 2 | 82% |
-| `carbina/views.py` | 176 | 69 | 61% |
+| `carbina/views.py` | 182 | 69 | 62% |
 | `dashboard/__init__.py` | 0 | 0 | 100% |
 | `dashboard/migrations/__init__.py` | 0 | 0 | 100% |
 | `dashboard/tests.py` | 1 | 0 | 100% |
 | `dashboard/urls.py` | 3 | 0 | 100% |
-| `dashboard/views.py` | 14 | 4 | 71% |
+| `dashboard/views.py` | 20 | 8 | 60% |
 | `employee_auth/__init__.py` | 0 | 0 | 100% |
 | `employee_auth/admin.py` | 48 | 13 | 73% |
 | `employee_auth/apps.py` | 4 | 0 | 100% |
@@ -30,21 +30,27 @@
 | `employee_auth/models.py` | 78 | 0 | 100% |
 | `employee_auth/tests.py` | 34 | 0 | 100% |
 | `employee_auth/urls.py` | 3 | 0 | 100% |
-| `employee_auth/views.py` | 135 | 56 | 59% |
+| `employee_auth/views.py` | 128 | 56 | 56% |
 | `manage.py` | 12 | 2 | 83% |
 | `manager/__init__.py` | 0 | 0 | 100% |
-| `manager/core.py` | 11 | 2 | 82% |
+| `manager/core.py` | 14 | 9 | 36% |
 | `manager/settings.py` | 29 | 0 | 100% |
 | `manager/urls.py` | 8 | 0 | 100% |
 | `carbina/tests/test_views.py` | 117 | 2 | 98% |
-| `carbina/tests/test_async_tasks.py` | 20 | 0 | 100% |
+| `carbina/tests/test_async_tasks.py` | 59 | 0 | 100% |
 | `carbina/tests/test_utils.py` | 3 | 0 | 100% |
 | `employee_auth/migrations/0003_auto_20210102_2348.py` | 4 | 0 | 100% |
 | `employee_auth/tests/__init__.py` | 0 | 0 | 100% |
 | `employee_auth/tests/test_models.py` | 171 | 0 | 100% |
 | `employee_auth/migrations/0004_remove_user_company_email_password.py` | 4 | 0 | 100% |
 | `employee_auth/tests/test_views.py` | 100 | 0 | 100% |
-| **Total** | **1445** | **252** | **83%** |
+| `_keys/__init__.py` | 0 | 0 | 100% |
+| `_keys/api_keys.py` | 1 | 0 | 100% |
+| `carbina/filters.py` | 10 | 0 | 100% |
+| `carbina/job_views.py` | 62 | 32 | 48% |
+| `carbina/migrations/0004_auto_20210115_1725.py` | 6 | 0 | 100% |
+| `carbina/migrations/0005_auto_20210115_1827.py` | 6 | 0 | 100% |
+| **Total** | **1590** | **274** | **83%** |
 
 
-<small>Generated at 2021-01-10 15:08:02.623467</small>
+<small>Generated at 2021-01-18 22:05:51.837501</small>

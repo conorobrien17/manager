@@ -3,32 +3,37 @@
 {% load static %}
 
 {% block page_content %}
+<br><br>
 <main role="main" class="container p-5 mt-5">
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
+    <div class="p-5 card">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}
+                <p class="text-danger">{{ error }}</p>
+            {% endfor %}
 
-        {{ form.source.errors }}
-        {{ form.source }}
-        <div class="container">
-            <div class="row pt-2">
-                <div class="form-floating col-md-4">
-                    {{ form.username.errors }}
-                    <input type="text" class="form-control col-form-label-lg" name="{{ form.username.name }}" maxlength="64" required="" id="{{ form.username.id_for_label }}" placeholder="name">
-                    <label class="col-form-label-lg" for="{{ form.username.id_for_label }}">{{ form.username.label_tag }}</label>
+            {{ form.source.errors }}
+            {{ form.source }}
+            <div class="container">
+                <div class="row pt-2">
+                    <div class="form-floating col-md-4">
+                        {{ form.username.errors }}
+                        <input type="text" class="form-control col-form-label-lg {% if form.non_field_errors %}is-invalid{% endif %}" name="{{ form.username.name }}" maxlength="64" required="" id="{{ form.username.id_for_label }}" placeholder="name">
+                        <label class="col-form-label-lg" for="{{ form.username.id_for_label }}">{{ form.username.label_tag }}</label>
+                    </div>
                 </div>
-            </div>
-            <div class="row pt-2">
-                <div class="form-floating col-md-4">
-                    {{ form.password.errors }}
-                    <input type="password" class="form-control col-form-label-lg" name="{{ form.password.name }}" maxlength="64" required="" id="{{ form.password.id_for_label }}" placeholder="name">
-                    <label class="col-form-label-lg" for="{{ form.password.id_for_label }}">{{ form.password.label_tag }}</label>
+                <div class="row pt-2">
+                    <div class="form-floating col-md-4">
+                        {{ form.password.errors }}
+                        <input type="password" class="form-control col-form-label-lg {% if form.non_field_errors %}is-invalid{% endif %}" name="{{ form.password.name }}" maxlength="64" required="" id="{{ form.password.id_for_label }}" placeholder="name">
+                        <label class="col-form-label-lg" for="{{ form.password.id_for_label }}">{{ form.password.label_tag }}</label>
+                    </div>
                 </div>
+                <br>
+                <button class="btn btn-success" type="submit">Login</button>
             </div>
-            <br>
-            <button class="btn btn-success" type="submit">Login</button>
-        </div>
-    </form>
+        </form>
+    </div>
 </main>
 {% endblock %}
