@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from manager import settings
-from carbina.api import views
+from carbina.api import views as api_views
 
 router = routers.DefaultRouter()
-router.register(r'clients', views.ClientViewSet)
+router.register(r'clients', api_views.ClientList)
+router.register(r'client-detail', api_views.ClientDetail)
 
 urlpatterns = [
     path('', include('dashboard.urls')),
@@ -31,6 +32,8 @@ urlpatterns = [
     path('carbina/', include('carbina.urls')),
     path('django-rq/', include('django_rq.urls')),
     path('api/', include(router.urls)),
+    path('api/carbina/clients/', api_views.ClientList.as_view({'get': 'list'}), name="client-list-api"),
+    path('api/carbina/clients/<int:pk>/detail/', api_views.ClientDetail.as_view({'get': 'retrieve'}), name="client-detail"),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
