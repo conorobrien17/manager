@@ -16,8 +16,12 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-
+from rest_framework import routers
 from manager import settings
+from carbina.api import views
+
+router = routers.DefaultRouter()
+router.register(r'clients', views.ClientViewSet)
 
 urlpatterns = [
     path('', include('dashboard.urls')),
@@ -25,7 +29,9 @@ urlpatterns = [
     path('accounts/', include('employee_auth.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('carbina/', include('carbina.urls')),
-    path('django-rq/', include('django_rq.urls'))
+    path('django-rq/', include('django_rq.urls')),
+    path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = 'Arena Tree Specialists Admin'
