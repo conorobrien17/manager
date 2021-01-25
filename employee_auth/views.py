@@ -59,6 +59,13 @@ class UserDetailView(DetailView):
     slug_url_kwarg = '_slug'
     slug_field = 'slug'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.get_object()
+        if not self.request.user.has_perm('view_advanced_acc_info'):
+            context['user.last_login'] = None
+        return context
+
 
 @method_decorator(edit_decorators, name="dispatch")
 class UserEditView(UpdateView):

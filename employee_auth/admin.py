@@ -19,17 +19,21 @@ class AddUserForm(UserCreationForm):
             "department", "password1", "password2", "groups", "user_permissions")
 
     def check_passwords_match(self):
-        if not self.password1 or not self.password2:
+        try:
+            cleaned_password1 = self.cleaned_data.get("password1")
+            cleaned_password2 = self.cleaned_data.get("password2")
+
+            if cleaned_password1 != cleaned_password2:
+                raise forms.ValidationError("Passwords do not match")
+            return cleaned_password1
+
+        except AttributeError as e:
             raise forms.ValidationError("Password fields cannot be empty")
-        cleaned_password1 = self.cleaned_data.get("password1")
-        cleaned_password2 = self.cleaned_data.get("password2")
-        if cleaned_password1 != cleaned_password2:
-            raise forms.ValidationError("Passwords do not match")
-        return cleaned_password1
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.check_passwords_match())
+
         if commit:
             user.save()
         return user
@@ -53,7 +57,6 @@ class EditUserForm(forms.ModelForm):
 class UserAdmin(BaseUserAdmin):
     form = EditUserForm
     add_form = AddUserForm
-    prepopulated_fields = {'slug': ('username',)}
 
     list_display = ("username", "first_name", "last_name", "department", "job_title")
     list_filter = ("is_staff",)

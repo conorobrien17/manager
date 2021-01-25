@@ -70,7 +70,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False, help_text="Designates whether the user can log into this admin site.")
     account_creation_dt = models.DateTimeField(auto_now_add=True, help_text="The date and time the account was created.")
     last_login = models.DateTimeField(blank=True, null=True)
-    profile_picture = models.ImageField(blank=True, null=True, help_text="The employee's profile picture")
+    profile_picture = models.ImageField(blank=True, upload_to="profile_pics", null=True, help_text="The employee's profile picture")
     objects = UserManager()
 
     USERNAME_FIELD = 'username'
@@ -92,6 +92,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             ("edit_department", "Can assign a user to a department"),
             ("edit_staff_status", "Can edit a user\'s staff status"),
             ("view_phone_number", "Can view a user\'s phone number"),
+            ("view_advanced_acc_info", "Can view more administrative information about an account"),
         ]
         ordering = ['username']
 

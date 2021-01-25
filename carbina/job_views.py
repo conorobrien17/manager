@@ -51,7 +51,7 @@ class QuoteCreateView(CreateView):
         if form.is_valid() and item_formset.is_valid():
             quote_object = form.save(commit=False)
             quote_object.created_by = self.request.user
-            quote_object.save(commit=True)
+            quote_object.save()
 
             history_log = QuoteHistoryLog.objects.create(quote=self.object).save(commit=True)
             history_log_update = HistoryLogUpdate.objects.create(
